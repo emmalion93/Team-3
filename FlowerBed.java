@@ -522,7 +522,7 @@ public class FlowerBed
 					}
                     // this moves stuff from the deck out on the field automatically
 					// to populated play stack
-					if (movedCard != null && dest.contains(stop) && !dest.empty() && dest.getFirst().getFaceStatus()
+					/*if (movedCard != null && dest.contains(stop) && !dest.empty() && dest.getFirst().getFaceStatus()
 							&& validPlayStackMove(movedCard, dest.getFirst()))
 					{
 						System.out.print("moving new card ");
@@ -535,7 +535,7 @@ public class FlowerBed
 						setScore(5);
 						validMoveMade = true;
 						break;
-					}
+					}*/
 				}
 				// Moving from SHOW TO FINAL
 				for (int x = 0; x < NUM_FINAL_DECKS; x++)
@@ -584,12 +584,7 @@ public class FlowerBed
 					if (card.getFaceStatus() == true && dest.contains(stop) && source != dest && !dest.empty()
 							&& validPlayStackMove(card, dest.getFirst()) && transferStack.showSize() == 1)
 					{
-						Card c = null;
-						/*if (sourceIsFinalDeck)
-							c = source.pop();
-						else
-							c = source.popFirst();*/
-						c = card;
+						Card c = card;
 						source.removeCard(card);
 
 
@@ -617,14 +612,9 @@ public class FlowerBed
 							setScore(10);
 						validMoveMade = true;
 						break;
-					} else if (dest.empty() && transferStack.showSize() == 1)
+					} else if (dest.empty() && transferStack.showSize() == 1 && dest.contains(stop))
 					{// MOVING TO EMPTY STACK, ONLY KING ALLOWED
-						Card c = null;
-						/*if (sourceIsFinalDeck)
-							c = source.pop();
-						else
-							c = source.popFirst();*/
-						c = card;
+						Card c = card;
 						source.removeCard(card);
 
 
