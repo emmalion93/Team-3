@@ -34,7 +34,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 
-public class FlowerBed
+public class FlowerBed extends GameMode
 {
 	// CONSTANTS
 	public static final int TABLE_HEIGHT = Card.CARD_HEIGHT * 4;
@@ -45,11 +45,6 @@ public class FlowerBed
     public static final Point SHOW_POS = new Point(DECK_POS.x + Card.CARD_WIDTH + 5, 5);
 	public static final Point FINAL_POS = new Point(SHOW_POS.x + Card.CARD_WIDTH + 650, 5);
     public static final Point PLAY_POS = new Point(5, 5);
-
-	// GAMEPLAY STRUCTURES
-	private static FlowerBedFinalStack[] final_cards;// Foundation Stacks
-	private static FlowerBedCardStack[] playCardStack; // Tableau stacks
-	private static FlowerBedCardStack deck; // populated with standard 52 card deck
 
 	// GUI COMPONENTS (top level)
 	private static final JFrame frame = new JFrame("Klondike Solitaire");
@@ -76,9 +71,15 @@ public class FlowerBed
 	private static int score = 0;// keep track of the score
 	private static int time = 0;// keep track of seconds elapsed
 
-	// Game information Variables
-	private static String gameName = "Flower Bed";
-	private static String gameDesc = "Move cards one at a time onto stacks regardless of suit/color to fill foundations.";
+	// GAMEPLAY STRUCTURES
+	private static FlowerBedFinalStack[] final_cards;// Foundation Stacks
+	private static FlowerBedCardStack[] playCardStack; // Tableau stacks
+	private static FlowerBedCardStack deck; // populated with standard 52 card deck
+
+	public FlowerBed() {
+		gameName = "Flower Bed";
+		gameDesc = "Move cards one at a time onto stacks regardless of suit/color to fill foundations.";
+	}
 
 	// moves a card to abs location within a component
 	protected static Card moveCard(Card c, int x, int y)
@@ -966,11 +967,8 @@ public class FlowerBed
 		frame.setVisible(true);
 	}
 
-	public static String getName() { return gameName; }
-	public static String getDesc() { return gameDesc; }
 	public static void main(String[] args)
 	{
-
 
 	}
 }

@@ -21,7 +21,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 
-public class Solitaire
+public class Solitaire extends GameMode
 {
 	// CONSTANTS
 	public static final int TABLE_HEIGHT = Card.CARD_HEIGHT * 4;
@@ -61,9 +61,11 @@ public class Solitaire
 	private static int score = 0;// keep track of the score
 	private static int time = 0;// keep track of seconds elapsed
 
-	// Game information Variables
-	private static String gameName = "Klondike";
-	private static String gameDesc = "Traditional Solitaire";
+
+	public Solitaire() {
+		gameName = "Klondike";
+		gameDesc = "Traditional Solitaire";
+	}
 
 
 	// moves a card to abs location within a component
@@ -766,7 +768,7 @@ public class Solitaire
 		table.repaint();
 	}
 
-	public static void execute() {
+	public void execute() {
 		Container contentPane;
 
 		frame.setSize(TABLE_WIDTH, TABLE_HEIGHT);
@@ -787,9 +789,6 @@ public class Solitaire
 
 		frame.setVisible(true);
 	}
-
-	public static String getName() { return gameName; }
-	public static String getDesc() { return gameDesc; }
 
 	public static void main(String[] args)
 	{
