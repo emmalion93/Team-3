@@ -1,6 +1,5 @@
 // created by team-3
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Point;
@@ -13,11 +12,6 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.lang.reflect.Array;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -47,8 +41,10 @@ public class FlowerBed extends GameMode
     public static final Point PLAY_POS = new Point(5, 5);
 
 	// GUI COMPONENTS (top level)
-	private static final JFrame frame = new JFrame("Klondike Solitaire");
-	protected static final JPanel table = new JPanel();
+	//private static final JFrame frame = new JFrame("Klondike Solitaire");
+	//protected static final JPanel table = new JPanel();
+	private JFrame frame;
+	protected JPanel table = new JPanel();
 	// other components
 	private  JEditorPane gameTitle = new JEditorPane("text/html", "");
 	private JButton showRulesButton = new JButton("Show Rules");
@@ -159,10 +155,10 @@ public class FlowerBed extends GameMode
 		@Override
 		public void actionPerformed(ActionEvent e)
 		{
-			frame.setVisible(false);
+			//frame.setVisible(false);
 			StartMenu.execute();
 			scoreClock.cancel();
-			frame.dispose();
+			//frame.dispose();
 		}
 
 	}
@@ -314,7 +310,7 @@ public class FlowerBed extends GameMode
 		}
 	}
 
-	private static class ShowRulesListener implements ActionListener
+	private class ShowRulesListener implements ActionListener
 	{
 		@Override
 		public void actionPerformed(ActionEvent e)
@@ -944,8 +940,10 @@ public class FlowerBed extends GameMode
 		table.repaint();
 	}
 
-	public void execute() {
+	public void execute(JPanel myTable, JFrame myFrame) {
 		Container contentPane;
+		table = myTable;
+		frame = myFrame;
 
 		frame.setSize(TABLE_WIDTH, TABLE_HEIGHT);
 

@@ -18,7 +18,7 @@ import java.util.Arrays;
 
 
 public class GameModeButton {
-    
+
     private GameMode gameMode;
     private String name;
     private JPanel table;
@@ -42,31 +42,22 @@ public class GameModeButton {
         gameButton = new JButton(name);
         gameButton.setName(name);
         gameButton.addActionListener(new NewGameListener());
-        gameButton.setBounds(x_pos, my_y_pos, 120, 60);
-
-        System.out.println(name);
 
         String[] highScores = getHighScore(name).split(",");
         highScoreBox = new JTextPane();
         highScoreBox.setText("High Score \nScore: " + highScores[0] + "\n Time: " + highScores[1]);
-        highScoreBox.setBounds(x_pos + 130, my_y_pos, 120, 60);
         highScoreBox.setEditable(false);
         highScoreBox.setOpaque(false);
 
         checkBox= new JCheckBox();
         checkBox.addActionListener(new CheckFavoritesListener());
         checkBox.setName(name);
-        checkBox.setBounds(x_pos - 20, my_y_pos, 20, 20);
 
         gameinformationButton = new JButton("Description");
         gameinformationButton.setName(name);
         gameinformationButton.addActionListener(new ShowDescriptionListener());
-        gameinformationButton.setBounds(x_pos + 250, my_y_pos + 5, 120, 30);
 
-        table.add(gameButton);
-        table.add(highScoreBox);
-        table.add(checkBox);
-        table.add(gameinformationButton);
+        setPosition(x_pos, y_pos);
     }
 
     public void setPosition(int my_x_pos, int my_y_pos) {
@@ -80,7 +71,10 @@ public class GameModeButton {
         checkBox.setBounds(x_pos - 20, my_y_pos, 20, 20);
 
         gameinformationButton.setBounds(x_pos + 250, my_y_pos + 5, 120, 30);
+        addButtons();
+    }
 
+    private void addButtons() {
         table.add(gameButton);
         table.add(highScoreBox);
         table.add(checkBox);
@@ -94,7 +88,7 @@ public class GameModeButton {
 		@Override
 		public void actionPerformed(ActionEvent e)
 		{
-            gameMode.execute();
+            gameMode.execute(table ,frame);
 		}
 
 	}

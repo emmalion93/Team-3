@@ -1,32 +1,16 @@
 import java.awt.Container;
 import java.awt.Color;
-
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComponent;
-import javax.swing.JDialog;
 import javax.swing.JEditorPane;
 import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JTextField;
-import javax.swing.JTextPane;
-import javax.swing.text.StyleConstants;
-import javax.swing.text.StyledDocument;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.util.List;
-import java.util.Vector;
-import java.util.Arrays;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
+import java.util.List;
 import java.util.ArrayList;
-import java.io.IOException;
 
 public class StartMenu {
 
@@ -198,6 +182,7 @@ public class StartMenu {
 
 		frame.setVisible(true);
 	}
+
 
 	public static void main(String[] args)
 	{
