@@ -1,6 +1,5 @@
 // created by team-3
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Point;
@@ -9,8 +8,16 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.Vector;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -21,94 +28,97 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 
-public class Solitaire extends GameMode
+public class FlowerBed extends GameMode
 {
 	// CONSTANTS
 	public static final int TABLE_HEIGHT = Card.CARD_HEIGHT * 4;
-	public static final int TABLE_WIDTH = (Card.CARD_WIDTH * 7) + 100;
+	public static final int TABLE_WIDTH = (Card.CARD_WIDTH * 12) + 100;
 	public static final int NUM_FINAL_DECKS = 4;
 	public static final int NUM_PLAY_DECKS = 7;
-	public static final Point DECK_POS = new Point(5, 5);
-	public static final Point SHOW_POS = new Point(DECK_POS.x + Card.CARD_WIDTH + 5, DECK_POS.y);
-	public static final Point FINAL_POS = new Point(SHOW_POS.x + Card.CARD_WIDTH + 150, DECK_POS.y);
-	public static final Point PLAY_POS = new Point(DECK_POS.x, FINAL_POS.y + Card.CARD_HEIGHT + 30);
-
-	// GAMEPLAY STRUCTURES
-	private static FinalStack[] final_cards;// Foundation Stacks
-	private static CardStack[] playCardStack; // Tableau stacks
-	private static final Card newCardPlace = new Card();// waste card spot
-	private static CardStack deck; // populated with standard 52 card deck
+    public static final Point DECK_POS = new Point(5, 350);
+    public static final Point SHOW_POS = new Point(DECK_POS.x + Card.CARD_WIDTH + 5, 5);
+	public static final Point FINAL_POS = new Point(SHOW_POS.x + Card.CARD_WIDTH + 650, 5);
+    public static final Point PLAY_POS = new Point(5, 5);
 
 	// GUI COMPONENTS (top level)
-	private static final JFrame frame = new JFrame("Klondike Solitaire");
-	protected static final JPanel table = new JPanel();
+	//private static final JFrame frame = new JFrame("Klondike Solitaire");
+	//protected static final JPanel table = new JPanel();
+	private JFrame frame;
+	protected JPanel table = new JPanel();
 	// other components
-	private static JEditorPane gameTitle = new JEditorPane("text/html", "");
-	private static JButton showRulesButton = new JButton("Show Rules");
-	private static JButton newGameButton = new JButton("New Game");
-	private static JButton toggleTimerButton = new JButton("Pause Timer");
-	private static JTextField scoreBox = new JTextField();// displays the score
-	private static JTextField timeBox = new JTextField();// displays the time
-	private static JTextField statusBox = new JTextField();// status messages
-	private static final Card newCardButton = new Card();// reveal waste card
+	private  JEditorPane gameTitle = new JEditorPane("text/html", "");
+	private JButton showRulesButton = new JButton("Show Rules");
+	private  JButton newGameButton = new JButton("New Game");
+	private  JButton mainMenuButton = new JButton("Main Menu");
+	private  JButton toggleTimerButton = new JButton("Pause Timer");
+	private  JButton saveButton = new JButton("Save");
+	private  JButton loadButton = new JButton("Load");
+	private  JButton optionsButton = new JButton("Options");
+	private  JTextField scoreBox = new JTextField();// displays the score
+	private  JTextField timeBox = new JTextField();// displays the time
+	private  JTextField statusBox = new JTextField();// status messages
 
 	// TIMER UTILITIES
-	private static Timer timer = new Timer();
-	private static ScoreClock scoreClock = new ScoreClock();
+	private Timer timer;
+	private ScoreClock scoreClock;
 
 	// MISC TRACKING VARIABLES
 	private static boolean timeRunning = false;// timer running?
 	private static int score = 0;// keep track of the score
 	private static int time = 0;// keep track of seconds elapsed
 
+	// GAMEPLAY STRUCTURES
+	private static FlowerBedFinalStack[] final_cards;// Foundation Stacks
+	private static FlowerBedCardStack[] playCardStack; // Tableau stacks
+	private static FlowerBedCardStack deck; // populated with standard 52 card deck
 
-	public Solitaire() {
-		gameName = "Klondike";
-		gameDesc = "Traditional Solitaire";
+	public FlowerBed() {
+		gameName = "Flower Bed";
+		gameDesc = "Move cards one at a time onto stacks regardless of suit/color to fill foundations.";
 	}
-
 
 	// moves a card to abs location within a component
 	protected static Card moveCard(Card c, int x, int y)
 	{
 		c.setBounds(new Rectangle(new Point(x, y), new Dimension(Card.CARD_WIDTH + 10, Card.CARD_HEIGHT + 10)));
-		c.setXY(new Point(x, y));
+        c.setXY(new Point(x, y));
 		return c;
 	}
 
 	// add/subtract points based on gameplay actions
-	protected static void setScore(int deltaScore)
+	protected void setScore(int deltaScore)
 	{
-		Solitaire.score += deltaScore;
-		String newScore = "Score: " + Solitaire.score;
+		FlowerBed.score += deltaScore;
+		String newScore = "Score: " + FlowerBed.score;
 		scoreBox.setText(newScore);
 		scoreBox.repaint();
 	}
 
 	// GAME TIMER UTILITIES
-	protected static void updateTimer()
+	protected void updateTimer()
 	{
-		Solitaire.time += 1;
+		time += 1;
 		// every 10 seconds elapsed we take away 2 points
-		if (Solitaire.time % 10 == 0)
+		if (time % 10 == 0)
 		{
 			setScore(-2);
 		}
-		String time = "Seconds: " + Solitaire.time;
-		timeBox.setText(time);
+		String text = "Seconds: " + time;
+		timeBox.setText(text);
 		timeBox.repaint();
 	}
 
-	protected static void startTimer()
+	protected void startTimer()
 	{
 		scoreClock = new ScoreClock();
+		timer = new Timer();
 		// set the timer to update every second
 		timer.scheduleAtFixedRate(scoreClock, 1000, 1000);
 		timeRunning = true;
 	}
 
 	// the pause timer button uses this
-	protected static void toggleTimer()
+	protected void toggleTimer()
 	{
 		if (timeRunning && scoreClock != null)
 		{
@@ -120,7 +130,7 @@ public class Solitaire extends GameMode
 		}
 	}
 
-	private static class ScoreClock extends TimerTask
+	private class ScoreClock extends TimerTask
 	{
 		@Override
 		public void run()
@@ -130,7 +140,7 @@ public class Solitaire extends GameMode
 	}
 
 	// BUTTON LISTENERS
-	private static class NewGameListener implements ActionListener
+	private class NewGameListener implements ActionListener
 	{
 		@Override
 		public void actionPerformed(ActionEvent e)
@@ -140,7 +150,20 @@ public class Solitaire extends GameMode
 
 	}
 
-	private static class ToggleTimerListener implements ActionListener
+	private class MainMenuListener implements ActionListener
+	{
+		@Override
+		public void actionPerformed(ActionEvent e)
+		{
+			//frame.setVisible(false);
+			StartMenu.execute();
+			scoreClock.cancel();
+			//frame.dispose();
+		}
+
+	}
+
+	private class ToggleTimerListener implements ActionListener
 	{
 		@Override
 		public void actionPerformed(ActionEvent e)
@@ -154,10 +177,140 @@ public class Solitaire extends GameMode
 				toggleTimerButton.setText("Pause Timer");
 			}
 		}
-
 	}
 
-	private static class ShowRulesListener implements ActionListener
+	private static class SaveGameListener implements ActionListener
+	{
+		@Override
+		public void actionPerformed(ActionEvent e)
+		{
+			String cardList = "";
+			for (int x = 0; x < NUM_PLAY_DECKS; x++)
+			{
+				Vector stack = playCardStack[x].getStack();
+
+				for (int y = 0; y < stack.size(); y++)
+				{
+					Card c = (Card) stack.get(y);
+					cardList = cardList + c.getSuit() + "," + c.getValue() + ";";
+				}
+				if(stack.size() == 0) {
+					cardList = cardList + ";";
+				}
+				cardList = cardList + "\n";
+			}
+			for (int x = 0; x < NUM_FINAL_DECKS; x++)
+			{
+				Vector stack = final_cards[x].getStack();
+
+				for (int y = 0; y < stack.size(); y++)
+				{
+					Card c = (Card) stack.get(y);
+					cardList = cardList + c.getSuit() + "," + c.getValue() + ";";
+				}
+				if(stack.size() == 0) {
+					cardList = cardList + ";";
+				}
+				cardList = cardList + "\n";
+			}
+			Vector stack = deck.reverse().getStack();
+
+			for (int y = 0; y < stack.size(); y++)
+			{
+				Card c = (Card) stack.get(y);
+				cardList = cardList + c.getSuit() + "," + c.getValue() + ";";
+			}
+			if(stack.size() == 0) {
+				cardList = cardList + ";";
+			}
+			deck.reverse();
+
+			cardList = cardList + "\n" + score + "\n" + time;
+
+			try {
+				PrintWriter writer = new PrintWriter("SavedFile.txt");
+				writer.print(cardList);
+				writer.close();
+			} catch(IOException i) {
+				i.printStackTrace();
+			}
+		}
+	}
+
+	private class LoadGameListener implements ActionListener
+	{
+		@Override
+		public void actionPerformed(ActionEvent e)
+		{
+			if (playCardStack != null && final_cards != null)
+			{
+				for (int x = 0; x < NUM_PLAY_DECKS; x++)
+				{
+					playCardStack[x].makeEmpty();
+				}
+				for (int x = 0; x < NUM_FINAL_DECKS; x++)
+				{
+					final_cards[x].makeEmpty();
+				}
+			}
+			deck.makeEmpty();
+
+
+			BufferedReader reader;
+			String[] stacks = new String[NUM_PLAY_DECKS + NUM_FINAL_DECKS + 3];
+
+			try {
+				reader = new BufferedReader(new FileReader("SavedFile.txt"));
+				for (int x = 0; x < stacks.length; x++)
+				{
+					stacks[x] = reader.readLine();
+				}
+				reader.close();
+			} catch(IOException i) {
+				i.printStackTrace();
+			}
+			for (int x = 0; x < NUM_PLAY_DECKS; x++)
+			{
+				List<String> cardList = Arrays.asList(stacks[x].split(";"));
+				for (int y = 0; y < cardList.size(); y++)
+				{
+					List<String> cardInfo = Arrays.asList(cardList.get(y).split(","));
+					Card c = new Card(Card.Suit.valueOf(cardInfo.get(0)), Card.Value.valueOf(cardInfo.get(1)));
+					playCardStack[x].push(c.setFaceup());
+				}
+			}
+			for (int x = 0; x < NUM_FINAL_DECKS; x++)
+			{
+				List<String> cardList = Arrays.asList(stacks[NUM_PLAY_DECKS + x].split(";"));
+				for (int y = 0; y < cardList.size(); y++)
+				{
+					List<String> cardInfo = Arrays.asList(cardList.get(y).split(","));
+					Card c = new Card(Card.Suit.valueOf(cardInfo.get(0)), Card.Value.valueOf(cardInfo.get(1)));
+					final_cards[x].push(c.setFaceup());
+				}
+				final_cards[x].repaint();
+			}
+			List<String> cardList = Arrays.asList(stacks[NUM_PLAY_DECKS + NUM_FINAL_DECKS].split(";"));
+			for (int y = 0; y < cardList.size(); y++)
+			{
+				List<String> cardInfo = Arrays.asList(cardList.get(y).split(","));
+				Card c = new Card(Card.Suit.valueOf(cardInfo.get(0)), Card.Value.valueOf(cardInfo.get(1)));
+				deck.push(c.setFaceup());
+			}
+			deck.reverse();
+
+			score = Integer.parseInt(stacks[NUM_PLAY_DECKS + NUM_FINAL_DECKS + 1]);
+			time = Integer.parseInt(stacks[NUM_PLAY_DECKS + NUM_FINAL_DECKS + 2]);
+			
+			scoreBox.setText("Score: " + score);
+			scoreBox.repaint();
+
+			timeBox.setText("Seconds: " + time);
+			timeBox.repaint();
+		}
+	}
+
+	private class ShowRulesListener implements ActionListener
 	{
 		@Override
 		public void actionPerformed(ActionEvent e)
@@ -206,7 +359,7 @@ public class Solitaire extends GameMode
 	 * as the game logic. This determines where Cards can be moved according to
 	 * the rules of Klondike solitiaire
 	 */
-	private static class CardMovementManager extends MouseAdapter
+	private class CardMovementManager extends MouseAdapter
 	{
 		private Card prevCard = null;// tracking card for waste stack
 		private Card movedCard = null;// card moved from waste stack
@@ -218,10 +371,10 @@ public class Solitaire extends GameMode
 		private Point stop = null;// where mouse was released
 		private Card card = null; // card to be moved
 		// used for moving single cards
-		private CardStack source = null;
-		private CardStack dest = null;
+		private FlowerBedCardStack source = null;
+		private FlowerBedCardStack dest = null;
 		// used for moving a stack of cards
-		private CardStack transferStack = new CardStack(false);
+		private FlowerBedCardStack transferStack = new FlowerBedCardStack(false);
 
 		private boolean validPlayStackMove(Card source, Card dest)
 		{
@@ -233,31 +386,7 @@ public class Solitaire extends GameMode
 			// destination card should be one higher value
 			if ((s_val + 1) == d_val)
 			{
-				// destination card should be opposite color
-				switch (s_suit)
-				{
-				case SPADES:
-					if (d_suit != Card.Suit.HEARTS && d_suit != Card.Suit.DIAMONDS)
-						return false;
-					else
-						return true;
-				case CLUBS:
-					if (d_suit != Card.Suit.HEARTS && d_suit != Card.Suit.DIAMONDS)
-						return false;
-					else
-						return true;
-				case HEARTS:
-					if (d_suit != Card.Suit.SPADES && d_suit != Card.Suit.CLUBS)
-						return false;
-					else
-						return true;
-				case DIAMONDS:
-					if (d_suit != Card.Suit.SPADES && d_suit != Card.Suit.CLUBS)
-						return false;
-					else
-						return true;
-				}
-				return false; // this never gets reached
+				return true;
 			} else
 				return false;
 		}
@@ -278,6 +407,19 @@ public class Solitaire extends GameMode
 				return false;
 		}
 
+        public Card getTop(Vector stack, Point p) {
+            Card c = null;
+            for (int x = stack.size() - 1; x >= 0; x--)
+            {
+                Card temp = (Card) stack.get(x);
+                temp.getSuit();
+                if(temp.contains(p)) {
+                    c = temp;
+                }
+            }
+            return c;
+        }
+
 		@Override
 		public void mousePressed(MouseEvent e)
 		{
@@ -296,52 +438,38 @@ public class Solitaire extends GameMode
 				if (stopSearch)
 					break;
 				source = playCardStack[x];
-				// pinpointing exact card pressed
-				for (Component ca : source.getComponents())
-				{
-					Card c = (Card) ca;
-					if (c.getFaceStatus() && source.contains(start))
-					{
+				// pinpointing exact card pressed-
+				if(source.contains(start) && source.showSize() > 0) {
+					Card c = (Card) source.getStack().get(0);
+					if(c.contains(start)) {
 						transferStack.putFirst(c);
-					}
-					if (c.contains(start) && source.contains(start) && c.getFaceStatus())
-					{
 						card = c;
 						stopSearch = true;
 						System.out.println("Transfer Size: " + transferStack.showSize());
-						break;
 					}
 				}
-
-			}
-			// SHOW (WASTE) CARD OPERATIONS
-			// display new show card
-			if (newCardButton.contains(start) && deck.showSize() > 0)
-			{
-				if (putBackOnDeck && prevCard != null)
-				{
-					System.out.println("Putting back on show stack: ");
-					prevCard.getValue();
-					prevCard.getSuit();
-					deck.putFirst(prevCard);
-				}
-
-				System.out.print("poping deck ");
-				deck.showSize();
-				if (prevCard != null)
-					table.remove(prevCard);
-				Card c = deck.pop().setFaceup();
-				table.add(Solitaire.moveCard(c, SHOW_POS.x, SHOW_POS.y));
-				c.repaint();
-				table.repaint();
-				prevCard = c;
 			}
 
-			// preparing to move show card
-			if (newCardPlace.contains(start) && prevCard != null)
-			{
-				movedCard = prevCard;
-			}
+            if(card == null) {
+                source = deck;
+                // pinpointing exact card pressed
+				Vector stack = source.getStack();
+                for (int x = 0; x < source.showSize(); x++)
+                {
+                    transferStack.makeEmpty();
+                    Card c = (Card) stack.get(x);
+                    if(source.contains(start) && c == getTop(source.getStack(), start)) {
+                        transferStack.putFirst(c);
+                        card = c;
+                        stopSearch = true;
+                        System.out.println("Transfer Size: " + transferStack.showSize());
+                        break;
+                    }                                    
+                }
+            }
+                        
+            
+			
 
 			// FINAL (FOUNDATION) CARD OPERATIONS
 			for (int x = 0; x < NUM_FINAL_DECKS; x++)
@@ -389,8 +517,9 @@ public class Solitaire extends GameMode
 						validMoveMade = true;
 						break;
 					}
+                    // this moves stuff from the deck out on the field automatically
 					// to populated play stack
-					if (movedCard != null && dest.contains(stop) && !dest.empty() && dest.getFirst().getFaceStatus()
+					/*if (movedCard != null && dest.contains(stop) && !dest.empty() && dest.getFirst().getFaceStatus()
 							&& validPlayStackMove(movedCard, dest.getFirst()))
 					{
 						System.out.print("moving new card ");
@@ -403,7 +532,7 @@ public class Solitaire extends GameMode
 						setScore(5);
 						validMoveMade = true;
 						break;
-					}
+					}*/
 				}
 				// Moving from SHOW TO FINAL
 				for (int x = 0; x < NUM_FINAL_DECKS; x++)
@@ -452,11 +581,9 @@ public class Solitaire extends GameMode
 					if (card.getFaceStatus() == true && dest.contains(stop) && source != dest && !dest.empty()
 							&& validPlayStackMove(card, dest.getFirst()) && transferStack.showSize() == 1)
 					{
-						Card c = null;
-						if (sourceIsFinalDeck)
-							c = source.pop();
-						else
-							c = source.popFirst();
+						Card c = card;
+						source.removeCard(card);
+
 
 						c.repaint();
 						// if playstack, turn next card up
@@ -482,13 +609,11 @@ public class Solitaire extends GameMode
 							setScore(10);
 						validMoveMade = true;
 						break;
-					} else if (dest.empty() && card.getValue() == Card.Value.KING && transferStack.showSize() == 1)
+					} else if (dest.empty() && transferStack.showSize() == 1 && dest.contains(stop))
 					{// MOVING TO EMPTY STACK, ONLY KING ALLOWED
-						Card c = null;
-						if (sourceIsFinalDeck)
-							c = source.pop();
-						else
-							c = source.popFirst();
+						Card c = card;
+						source.removeCard(card);
+
 
 						c.repaint();
 						// if playstack, turn next card up
@@ -512,59 +637,6 @@ public class Solitaire extends GameMode
 						validMoveMade = true;
 						break;
 					}
-					// Moving STACK of cards from PLAY TO PLAY
-					// to EMPTY STACK
-					if (dest.empty() && dest.contains(stop) && !transferStack.empty()
-							&& transferStack.getFirst().getValue() == Card.Value.KING)
-					{
-						System.out.println("King To Empty Stack Transfer");
-						while (!transferStack.empty())
-						{
-							System.out.println("popping from transfer: " + transferStack.getFirst().getValue());
-							dest.putFirst(transferStack.popFirst());
-							source.popFirst();
-						}
-						if (source.getFirst() != null)
-						{
-							Card temp = source.getFirst().setFaceup();
-							temp.repaint();
-							source.repaint();
-						}
-
-						dest.setXY(dest.getXY().x, dest.getXY().y);
-						dest.repaint();
-
-						table.repaint();
-						setScore(5);
-						validMoveMade = true;
-						break;
-					}
-					// to POPULATED STACK
-					if (dest.contains(stop) && !transferStack.empty() && source.contains(start)
-							&& validPlayStackMove(transferStack.getFirst(), dest.getFirst()))
-					{
-						System.out.println("Regular Stack Transfer");
-						while (!transferStack.empty())
-						{
-							System.out.println("popping from transfer: " + transferStack.getFirst().getValue());
-							dest.putFirst(transferStack.popFirst());
-							source.popFirst();
-						}
-						if (source.getFirst() != null)
-						{
-							Card temp = source.getFirst().setFaceup();
-							temp.repaint();
-							source.repaint();
-						}
-
-						dest.setXY(dest.getXY().x, dest.getXY().y);
-						dest.repaint();
-
-						table.repaint();
-						setScore(5);
-						validMoveMade = true;
-						break;
-					}
 				}
 				// from PLAY TO FINAL
 				for (int x = 0; x < NUM_FINAL_DECKS; x++)
@@ -577,7 +649,8 @@ public class Solitaire extends GameMode
 						{
 							if (card.getValue() == Card.Value.ACE)
 							{
-								Card c = source.popFirst();
+								Card c = card;
+								source.removeCard(card);
 								c.repaint();
 								if (source.getFirst() != null)
 								{
@@ -603,7 +676,8 @@ public class Solitaire extends GameMode
 							}// TO POPULATED STACK
 						} else if (validFinalStackMove(card, dest.getLast()))
 						{
-							Card c = source.popFirst();
+							Card c = card;
+							source.removeCard(card);
 							c.repaint();
 							if (source.getFirst() != null)
 							{
@@ -659,6 +733,50 @@ public class Solitaire extends GameMode
 
 			if (checkForWin && gameOver)
 			{
+				BufferedReader reader;
+				List<String> lines = new ArrayList<String>();
+
+				try {
+					reader = new BufferedReader(new FileReader("SavedScores.txt"));
+					while(reader.ready()) {
+						lines.add(reader.readLine());
+					}
+					reader.close();
+				} catch(IOException i) {
+					i.printStackTrace();
+				}
+
+				boolean found = false;
+				for(int x = 0; x < lines.size(); x++)
+				{
+					List<String> games = Arrays.asList(lines.get(x).split(":"));
+					if(gameName.equals(games.get(0))) {
+						List<String> highScores = Arrays.asList(games.get(1).split(","));
+						if(score > Integer.parseInt(highScores.get(0))) {
+							highScores.set(0, "" + score);
+						}
+						if(time < Integer.parseInt(highScores.get(1))) {
+							highScores.set(1, "" + time);
+						}
+						lines.set(x, games.get(0) + ":" + highScores.get(0) + "," + highScores.get(1));
+						found = true;
+						break;
+					}
+				}
+				if(!found) {
+					lines.add(gameName + ":" + score + "," + time);
+				}
+
+				try {
+					PrintWriter writer = new PrintWriter("SavedScores.txt");
+					for(int x = 0; x < lines.size(); x++)
+					{
+						writer.println(lines.get(x));
+					}
+					writer.close();
+				} catch(IOException i) {
+					i.printStackTrace();
+				}
 				JOptionPane.showMessageDialog(table, "Congratulations! You've Won!");
 				statusBox.setText("Game Over!");
 			}
@@ -672,13 +790,16 @@ public class Solitaire extends GameMode
 			checkForWin = false;
 			gameOver = false;
 		}// end mousePressed()
+
+		
 	}
 
-	private static void playNewGame()
+	public void playNewGame()
 	{
-		deck = new CardStack(true); // deal 52 cards
+		deck = new FlowerBedCardStack(true); // deal 52 cards
 		deck.shuffle();
 		table.removeAll();
+        
 		// reset stacks if user starts a new game in the middle of one
 		if (playCardStack != null && final_cards != null)
 		{
@@ -692,23 +813,22 @@ public class Solitaire extends GameMode
 			}
 		}
 		// initialize & place final (foundation) decks/stacks
-		final_cards = new FinalStack[NUM_FINAL_DECKS];
+		final_cards = new FlowerBedFinalStack[NUM_FINAL_DECKS];
 		for (int x = 0; x < NUM_FINAL_DECKS; x++)
 		{
-			final_cards[x] = new FinalStack();
+			final_cards[x] = new FlowerBedFinalStack();
 
 			final_cards[x].setXY((FINAL_POS.x + (x * Card.CARD_WIDTH)) + 10, FINAL_POS.y);
 			table.add(final_cards[x]);
 
 		}
 		// place new card distribution button
-		table.add(moveCard(newCardButton, DECK_POS.x, DECK_POS.y));
 		// initialize & place play (tableau) decks/stacks
-		playCardStack = new CardStack[NUM_PLAY_DECKS];
+		playCardStack = new FlowerBedCardStack[NUM_PLAY_DECKS];
 		for (int x = 0; x < NUM_PLAY_DECKS; x++)
 		{
-			playCardStack[x] = new CardStack(false);
-			playCardStack[x].setXY((DECK_POS.x + (x * (Card.CARD_WIDTH + 10))), PLAY_POS.y);
+			playCardStack[x] = new FlowerBedCardStack(false);
+            playCardStack[x].setXY((DECK_POS.x + (x * (Card.CARD_WIDTH + 10))), PLAY_POS.y);
 
 			table.add(playCardStack[x]);
 		}
@@ -720,56 +840,110 @@ public class Solitaire extends GameMode
 			Card c = deck.pop().setFaceup();
 			playCardStack[x].putFirst(c);
 
-			for (int y = x + 1; y < NUM_PLAY_DECKS; y++)
+			
+                        //here
+                        for (int y = 0; y < 4; y++)
 			{
-				playCardStack[y].putFirst(c = deck.pop());
+				playCardStack[x].push(c = deck.pop().setFaceup());
 			}
 		}
+
+        deck.setXY(DECK_POS.x, DECK_POS.y);
+        table.add(deck);
+
+		Vector stack = deck.getStack();
+        for (int x = 0; x < deck.showSize(); x++)
+		{
+            Card c = (Card) stack.get(x);
+            c.setFaceup();
+		}
+
+
 		// reset time
 		time = 0;
 
-		newGameButton.addActionListener(new NewGameListener());
-		newGameButton.setBounds(0, TABLE_HEIGHT - 70, 120, 30);
-
-		showRulesButton.addActionListener(new ShowRulesListener());
-		showRulesButton.setBounds(120, TABLE_HEIGHT - 70, 120, 30);
-
-		gameTitle.setText("<b>Shamari's Solitaire</b> <br> COP3252 <br> Spring 2012");
-		gameTitle.setEditable(false);
-		gameTitle.setOpaque(false);
-		gameTitle.setBounds(245, 20, 100, 100);
-
-		scoreBox.setBounds(240, TABLE_HEIGHT - 70, 120, 30);
 		scoreBox.setText("Score: 0");
-		scoreBox.setEditable(false);
-		scoreBox.setOpaque(false);
-
-		timeBox.setBounds(360, TABLE_HEIGHT - 70, 120, 30);
 		timeBox.setText("Seconds: 0");
-		timeBox.setEditable(false);
-		timeBox.setOpaque(false);
-
 		
-
-		toggleTimerButton.setBounds(480, TABLE_HEIGHT - 70, 125, 30);
-		toggleTimerButton.addActionListener(new ToggleTimerListener());
-
-		statusBox.setBounds(605, TABLE_HEIGHT - 70, 180, 30);
-		statusBox.setEditable(false);
-		statusBox.setOpaque(false);
-
 		table.add(statusBox);
 		table.add(toggleTimerButton);
+		table.add(saveButton);
+		table.add(loadButton);
+		table.add(optionsButton);
 		table.add(gameTitle);
 		table.add(timeBox);
+		table.add(mainMenuButton);
 		table.add(newGameButton);
 		table.add(showRulesButton);
 		table.add(scoreBox);
 		table.repaint();
 	}
 
-	public void execute() {
+	private void addButtons() {
+		mainMenuButton.addActionListener(new MainMenuListener());
+
+		newGameButton.addActionListener(new NewGameListener());
+
+		showRulesButton.addActionListener(new ShowRulesListener());
+		
+		toggleTimerButton.addActionListener(new ToggleTimerListener());
+
+		saveButton.addActionListener(new SaveGameListener());
+
+		loadButton.addActionListener(new LoadGameListener());
+
+		mainMenuButton.setBounds(0, TABLE_HEIGHT - 70, 120, 30);
+
+		newGameButton.setBounds(120, TABLE_HEIGHT - 70, 120, 30);
+
+		showRulesButton.setBounds(240, TABLE_HEIGHT - 70, 120, 30);
+
+		gameTitle.setText("<b>Team Three's Solitaire</b> <br> CPSC 4900 <br> Fall 2021");
+		gameTitle.setEditable(false);
+		gameTitle.setOpaque(false);
+		gameTitle.setBounds(775, 20, 100, 100);
+
+		scoreBox.setBounds(360, TABLE_HEIGHT - 70, 120, 30);
+		scoreBox.setText("Score: 0");
+		scoreBox.setEditable(false);
+		scoreBox.setOpaque(false);
+
+		timeBox.setBounds(480, TABLE_HEIGHT - 70, 120, 30);
+		timeBox.setText("Seconds: 0");
+		timeBox.setEditable(false);
+		timeBox.setOpaque(false);
+
+		toggleTimerButton.setBounds(600, TABLE_HEIGHT - 70, 125, 30);
+
+		statusBox.setBounds(725, TABLE_HEIGHT - 70, 180, 30);
+		statusBox.setEditable(false);
+		statusBox.setOpaque(false);
+
+		saveButton.setBounds(905, TABLE_HEIGHT - 70, 125, 30);
+
+		loadButton.setBounds(1030, TABLE_HEIGHT - 70, 125, 30);
+
+		optionsButton.setBounds(1155, TABLE_HEIGHT - 70, 130, 30);
+		optionsButton.setEnabled(false);
+
+		table.add(statusBox);
+		table.add(toggleTimerButton);
+		table.add(saveButton);
+		table.add(loadButton);
+		table.add(optionsButton);
+		table.add(gameTitle);
+		table.add(timeBox);
+		table.add(mainMenuButton);
+		table.add(newGameButton);
+		table.add(showRulesButton);
+		table.add(scoreBox);
+		table.repaint();
+	}
+
+	public void execute(JPanel myTable, JFrame myFrame) {
 		Container contentPane;
+		table = myTable;
+		frame = myFrame;
 
 		frame.setSize(TABLE_WIDTH, TABLE_HEIGHT);
 
@@ -781,6 +955,7 @@ public class Solitaire extends GameMode
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
         playNewGame();
+		addButtons();
 		startTimer();
 
 
@@ -792,8 +967,6 @@ public class Solitaire extends GameMode
 
 	public static void main(String[] args)
 	{
-
-		
 
 	}
 }
