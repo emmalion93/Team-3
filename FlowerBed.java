@@ -28,17 +28,21 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 
+
 public class FlowerBed extends GameMode
 {
 	// CONSTANTS
-	public static final int TABLE_HEIGHT = Card.CARD_HEIGHT * 4;
+	public static final int TABLE_HEIGHT = Card.CARD_HEIGHT * 5;
 	public static final int TABLE_WIDTH = (Card.CARD_WIDTH * 12) + 100;
 	public static final int NUM_FINAL_DECKS = 4;
 	public static final int NUM_PLAY_DECKS = 7;
-    public static final Point DECK_POS = new Point(5, 350);
-    public static final Point SHOW_POS = new Point(DECK_POS.x + Card.CARD_WIDTH + 5, 5);
-	public static final Point FINAL_POS = new Point(SHOW_POS.x + Card.CARD_WIDTH + 650, 5);
-    public static final Point PLAY_POS = new Point(5, 5);
+    //public static final Point DECK_POS = new Point(5, 350);
+    //public static final Point SHOW_POS = new Point(DECK_POS.x + Card.CARD_WIDTH + 5, 5);
+	//public static final Point FINAL_POS = new Point(SHOW_POS.x + Card.CARD_WIDTH + 650, 5);
+	public static final Point DECK_POS = new Point(5, 500);
+	public static final Point SHOW_POS = new Point(DECK_POS.x + Card.CARD_WIDTH + 5, 5);
+	public static final Point FINAL_POS = new Point(SHOW_POS.x + Card.CARD_WIDTH + 650, 35);
+    public static final Point PLAY_POS = new Point(5, 35);
 
 	// GUI COMPONENTS (top level)
 	//private static final JFrame frame = new JFrame("Klondike Solitaire");
@@ -62,11 +66,6 @@ public class FlowerBed extends GameMode
 	private Timer timer;
 	private ScoreClock scoreClock;
 
-	// MISC TRACKING VARIABLES
-	private static boolean timeRunning = false;// timer running?
-	private static int score = 0;// keep track of the score
-	private static int time = 0;// keep track of seconds elapsed
-
 	// GAMEPLAY STRUCTURES
 	private static FlowerBedFinalStack[] final_cards;// Foundation Stacks
 	private static FlowerBedCardStack[] playCardStack; // Tableau stacks
@@ -88,8 +87,8 @@ public class FlowerBed extends GameMode
 	// add/subtract points based on gameplay actions
 	protected void setScore(int deltaScore)
 	{
-		FlowerBed.score += deltaScore;
-		String newScore = "Score: " + FlowerBed.score;
+		score += deltaScore;
+		String newScore = "Score: " + score;
 		scoreBox.setText(newScore);
 		scoreBox.repaint();
 	}
@@ -118,7 +117,7 @@ public class FlowerBed extends GameMode
 	}
 
 	// the pause timer button uses this
-	protected void toggleTimer()
+	public void toggleTimer()
 	{
 		if (timeRunning && scoreClock != null)
 		{
@@ -140,27 +139,12 @@ public class FlowerBed extends GameMode
 	}
 
 	// BUTTON LISTENERS
-	private class NewGameListener implements ActionListener
-	{
-		@Override
-		public void actionPerformed(ActionEvent e)
-		{
-			playNewGame();
-		}
 
-	}
-
-	private class MainMenuListener implements ActionListener
-	{
-		@Override
-		public void actionPerformed(ActionEvent e)
-		{
-			//frame.setVisible(false);
-			StartMenu.execute();
-			scoreClock.cancel();
-			//frame.dispose();
-		}
-
+	public void startMenu() { 
+		scoreClock.cancel();
+		score = 0;
+		time = 0;
+		mainMenu.returnToMenu();
 	}
 
 	private class ToggleTimerListener implements ActionListener
@@ -179,41 +163,11 @@ public class FlowerBed extends GameMode
 		}
 	}
 
-	private static class SaveGameListener implements ActionListener
-	{
-		@Override
-		public void actionPerformed(ActionEvent e)
+	public void saveGame() {
+		String cardList = "";
+		for (int x = 0; x < NUM_PLAY_DECKS; x++)
 		{
-			String cardList = "";
-			for (int x = 0; x < NUM_PLAY_DECKS; x++)
-			{
-				Vector stack = playCardStack[x].getStack();
-
-				for (int y = 0; y < stack.size(); y++)
-				{
-					Card c = (Card) stack.get(y);
-					cardList = cardList + c.getSuit() + "," + c.getValue() + ";";
-				}
-				if(stack.size() == 0) {
-					cardList = cardList + ";";
-				}
-				cardList = cardList + "\n";
-			}
-			for (int x = 0; x < NUM_FINAL_DECKS; x++)
-			{
-				Vector stack = final_cards[x].getStack();
-
-				for (int y = 0; y < stack.size(); y++)
-				{
-					Card c = (Card) stack.get(y);
-					cardList = cardList + c.getSuit() + "," + c.getValue() + ";";
-				}
-				if(stack.size() == 0) {
-					cardList = cardList + ";";
-				}
-				cardList = cardList + "\n";
-			}
-			Vector stack = deck.reverse().getStack();
+			Vector stack = playCardStack[x].getStack();
 
 			for (int y = 0; y < stack.size(); y++)
 			{
@@ -223,135 +177,126 @@ public class FlowerBed extends GameMode
 			if(stack.size() == 0) {
 				cardList = cardList + ";";
 			}
-			deck.reverse();
-
-			cardList = cardList + "\n" + score + "\n" + time;
-
-			try {
-				PrintWriter writer = new PrintWriter("SavedFile.txt");
-				writer.print(cardList);
-				writer.close();
-			} catch(IOException i) {
-				i.printStackTrace();
-			}
+			cardList = cardList + "\n";
 		}
+		for (int x = 0; x < NUM_FINAL_DECKS; x++)
+		{
+			Vector stack = final_cards[x].getStack();
+
+			for (int y = 0; y < stack.size(); y++)
+			{
+				Card c = (Card) stack.get(y);
+				cardList = cardList + c.getSuit() + "," + c.getValue() + ";";
+			}
+			if(stack.size() == 0) {
+				cardList = cardList + ";";
+			}
+			cardList = cardList + "\n";
+		}
+		Vector stack = deck.reverse().getStack();
+
+		for (int y = 0; y < stack.size(); y++)
+		{
+			Card c = (Card) stack.get(y);
+			cardList = cardList + c.getSuit() + "," + c.getValue() + ";";
+		}
+		if(stack.size() == 0) {
+			cardList = cardList + ";";
+		}
+		deck.reverse();
+
+		cardList = cardList + "\n" + score + "\n" + time;
+
+		mainMenu.saveGame(cardList);
 	}
 
-	private class LoadGameListener implements ActionListener
-	{
-		@Override
-		public void actionPerformed(ActionEvent e)
+	public void loadGame() {
+		if (playCardStack != null && final_cards != null)
 		{
-			if (playCardStack != null && final_cards != null)
-			{
-				for (int x = 0; x < NUM_PLAY_DECKS; x++)
-				{
-					playCardStack[x].makeEmpty();
-				}
-				for (int x = 0; x < NUM_FINAL_DECKS; x++)
-				{
-					final_cards[x].makeEmpty();
-				}
-			}
-			deck.makeEmpty();
-
-
-			BufferedReader reader;
-			String[] stacks = new String[NUM_PLAY_DECKS + NUM_FINAL_DECKS + 3];
-
-			try {
-				reader = new BufferedReader(new FileReader("SavedFile.txt"));
-				for (int x = 0; x < stacks.length; x++)
-				{
-					stacks[x] = reader.readLine();
-				}
-				reader.close();
-			} catch(IOException i) {
-				i.printStackTrace();
-			}
 			for (int x = 0; x < NUM_PLAY_DECKS; x++)
 			{
-				List<String> cardList = Arrays.asList(stacks[x].split(";"));
-				for (int y = 0; y < cardList.size(); y++)
-				{
-					List<String> cardInfo = Arrays.asList(cardList.get(y).split(","));
-					Card c = new Card(Card.Suit.valueOf(cardInfo.get(0)), Card.Value.valueOf(cardInfo.get(1)));
-					playCardStack[x].push(c.setFaceup());
-				}
+				playCardStack[x].makeEmpty();
 			}
 			for (int x = 0; x < NUM_FINAL_DECKS; x++)
 			{
-				List<String> cardList = Arrays.asList(stacks[NUM_PLAY_DECKS + x].split(";"));
-				for (int y = 0; y < cardList.size(); y++)
-				{
-					List<String> cardInfo = Arrays.asList(cardList.get(y).split(","));
-					Card c = new Card(Card.Suit.valueOf(cardInfo.get(0)), Card.Value.valueOf(cardInfo.get(1)));
-					final_cards[x].push(c.setFaceup());
-				}
-				final_cards[x].repaint();
+				final_cards[x].makeEmpty();
 			}
-			List<String> cardList = Arrays.asList(stacks[NUM_PLAY_DECKS + NUM_FINAL_DECKS].split(";"));
+		}
+		deck.makeEmpty();
+
+		List<String> stacks = mainMenu.loadGame();
+		
+		for (int x = 0; x < NUM_PLAY_DECKS; x++)
+		{
+			List<String> cardList = Arrays.asList(stacks.get(x).split(";"));
 			for (int y = 0; y < cardList.size(); y++)
 			{
 				List<String> cardInfo = Arrays.asList(cardList.get(y).split(","));
 				Card c = new Card(Card.Suit.valueOf(cardInfo.get(0)), Card.Value.valueOf(cardInfo.get(1)));
-				deck.push(c.setFaceup());
+				//c.setImage(cardPath);
+				playCardStack[x].push(c.setFaceup());
 			}
-			deck.reverse();
-
-			score = Integer.parseInt(stacks[NUM_PLAY_DECKS + NUM_FINAL_DECKS + 1]);
-			time = Integer.parseInt(stacks[NUM_PLAY_DECKS + NUM_FINAL_DECKS + 2]);
-			
-			scoreBox.setText("Score: " + score);
-			scoreBox.repaint();
-
-			timeBox.setText("Seconds: " + time);
-			timeBox.repaint();
 		}
+		for (int x = 0; x < NUM_FINAL_DECKS; x++)
+		{
+			List<String> cardList = Arrays.asList(stacks.get(NUM_PLAY_DECKS + x).split(";"));
+			for (int y = 0; y < cardList.size(); y++)
+			{
+				List<String> cardInfo = Arrays.asList(cardList.get(y).split(","));
+				Card c = new Card(Card.Suit.valueOf(cardInfo.get(0)), Card.Value.valueOf(cardInfo.get(1)));
+				//c.setImage(cardPath);
+				final_cards[x].push(c.setFaceup());
+			}
+			final_cards[x].repaint();
+		}
+		List<String> cardList = Arrays.asList(stacks.get(NUM_PLAY_DECKS + NUM_FINAL_DECKS).split(";"));
+		for (int y = 0; y < cardList.size(); y++)
+		{
+			List<String> cardInfo = Arrays.asList(cardList.get(y).split(","));
+			Card c = new Card(Card.Suit.valueOf(cardInfo.get(0)), Card.Value.valueOf(cardInfo.get(1)));
+			//c.setImage(cardPath);
+			deck.push(c.setFaceup());
+		}
+		deck.reverse();
+
+		score = Integer.parseInt(stacks.get(NUM_PLAY_DECKS + NUM_FINAL_DECKS + 1));
+		time = Integer.parseInt(stacks.get(NUM_PLAY_DECKS + NUM_FINAL_DECKS + 2));
+		
+		scoreBox.setText("Score: " + score);
+		scoreBox.repaint();
+
+		timeBox.setText("Seconds: " + time);
+		timeBox.repaint();
 	}
 
-	private class ShowRulesListener implements ActionListener
-	{
-		@Override
-		public void actionPerformed(ActionEvent e)
-		{
-			JDialog ruleFrame = new JDialog(frame, true);
-			ruleFrame.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-			ruleFrame.setSize(TABLE_HEIGHT, TABLE_WIDTH);
-			JScrollPane scroll;
-			JEditorPane rulesTextPane = new JEditorPane("text/html", "");
-			rulesTextPane.setEditable(false);
-			String rulesText = "<b>Klondike Solitaire Rules</b>"
-					+ "<br><br> (From Wikipedia) Taking a shuffled standard 52-card deck of playing cards (without Jokers),"
-					+ " one upturned card is dealt on the left of the playing area, then six downturned cards"
-					+ " (from left to right).<p> On top of the downturned cards, an upturned card is dealt on the "
-					+ "left-most downturned pile, and downturned cards on the rest until all piles have an "
-					+ "upturned card. The piles should look like the figure to the right.<p>The four foundations "
-					+ "(light rectangles in the upper right of the figure) are built up by suit from Ace "
-					+ "(low in this game) to King, and the tableau piles can be built down by alternate colors,"
-					+ " and partial or complete piles can be moved if they are built down by alternate colors also. "
-					+ "Any empty piles can be filled with a King or a pile of cards with a King.<p> The point of "
-					+ "the game is to build up a stack of cards starting with 2 and ending with King, all of "
-					+ "the same suit. Once this is accomplished, the goal is to move this to a foundation, "
-					+ "where the player has previously placed the Ace of that suit. Once the player has done this, "
-					+ "they will have \"finished\" that suit- the goal being, of course, to finish all suits, "
-					+ "at which time the player will have won.<br><br><b> Scoring </b><br><br>"
-					+ "Moving cards directly from the Waste stack to a Foundation awards 10 points. However, "
-					+ "if the card is first moved to a Tableau, and then to a Foundation, then an extra 5 points "
-					+ "are received for a total of 15. Thus in order to receive a maximum score, no cards should be moved "
-					+ "directly from the Waste to Foundation.<p>	Time can also play a factor in Windows Solitaire, if the Timed game option is selected. For every 10 seconds of play, 2 points are taken away."
-					+ "<b><br><br>Notes On My Implementation</b><br><br>"
-					+ "Drag cards to and from any stack. As long as the move is valid the card, or stack of "
-					+ "cards, will be repositioned in the desired spot. The game follows the standard scoring and time"
-					+ " model explained above with only one waste card shown at a time."
-					+ "<p> The timer starts running as soon as "
-					+ "the game begins, but it may be paused by pressing the pause button at the bottom of"
-					+ "the screen. ";
-			rulesTextPane.setText(rulesText);
-			ruleFrame.add(scroll = new JScrollPane(rulesTextPane));
-
-			ruleFrame.setVisible(true);
-		}
+	public String getRules() {
+	 	String rulesText = "<b>Klondike Solitaire Rules</b>"
+				+ "<br><br> (From Wikipedia) Taking a shuffled standard 52-card deck of playing cards (without Jokers),"
+				+ " one upturned card is dealt on the left of the playing area, then six downturned cards"
+				+ " (from left to right).<p> On top of the downturned cards, an upturned card is dealt on the "
+				+ "left-most downturned pile, and downturned cards on the rest until all piles have an "
+				+ "upturned card. The piles should look like the figure to the right.<p>The four foundations "
+				+ "(light rectangles in the upper right of the figure) are built up by suit from Ace "
+				+ "(low in this game) to King, and the tableau piles can be built down by alternate colors,"
+				+ " and partial or complete piles can be moved if they are built down by alternate colors also. "
+				+ "Any empty piles can be filled with a King or a pile of cards with a King.<p> The point of "
+				+ "the game is to build up a stack of cards starting with 2 and ending with King, all of "
+				+ "the same suit. Once this is accomplished, the goal is to move this to a foundation, "
+				+ "where the player has previously placed the Ace of that suit. Once the player has done this, "
+				+ "they will have \"finished\" that suit- the goal being, of course, to finish all suits, "
+				+ "at which time the player will have won.<br><br><b> Scoring </b><br><br>"
+				+ "Moving cards directly from the Waste stack to a Foundation awards 10 points. However, "
+				+ "if the card is first moved to a Tableau, and then to a Foundation, then an extra 5 points "
+				+ "are received for a total of 15. Thus in order to receive a maximum score, no cards should be moved "
+				+ "directly from the Waste to Foundation.<p>	Time can also play a factor in Windows Solitaire, if the Timed game option is selected. For every 10 seconds of play, 2 points are taken away."
+				+ "<b><br><br>Notes On My Implementation</b><br><br>"
+				+ "Drag cards to and from any stack. As long as the move is valid the card, or stack of "
+				+ "cards, will be repositioned in the desired spot. The game follows the standard scoring and time"
+				+ " model explained above with only one waste card shown at a time."
+				+ "<p> The timer starts running as soon as "
+				+ "the game begins, but it may be paused by pressing the pause button at the bottom of"
+				+ "the screen. ";
+		return rulesText;
 	}
 
 	/*
@@ -474,7 +419,6 @@ public class FlowerBed extends GameMode
 			// FINAL (FOUNDATION) CARD OPERATIONS
 			for (int x = 0; x < NUM_FINAL_DECKS; x++)
 			{
-
 				if (final_cards[x].contains(start))
 				{
 					source = final_cards[x];
@@ -514,6 +458,7 @@ public class FlowerBed extends GameMode
 						movedCard = null;
 						putBackOnDeck = false;
 						setScore(5);
+						System.out.println("-3");
 						validMoveMade = true;
 						break;
 					}
@@ -550,6 +495,7 @@ public class FlowerBed extends GameMode
 							movedCard = null;
 							putBackOnDeck = false;
 							setScore(10);
+							System.out.println("-2");
 							validMoveMade = true;
 							break;
 						}
@@ -565,6 +511,7 @@ public class FlowerBed extends GameMode
 						putBackOnDeck = false;
 						checkForWin = true;
 						setScore(10);
+						System.out.println("-1");
 						validMoveMade = true;
 						break;
 					}
@@ -607,6 +554,7 @@ public class FlowerBed extends GameMode
 							setScore(15);
 						else
 							setScore(10);
+						System.out.println("0");
 						validMoveMade = true;
 						break;
 					} else if (dest.empty() && transferStack.showSize() == 1 && dest.contains(stop))
@@ -634,6 +582,7 @@ public class FlowerBed extends GameMode
 						System.out.print("Destination ");
 						dest.showSize();
 						setScore(5);
+						System.out.println("1");
 						validMoveMade = true;
 						break;
 					}
@@ -671,6 +620,7 @@ public class FlowerBed extends GameMode
 								dest.showSize();
 								card = null;
 								setScore(10);
+								System.out.println("2");
 								validMoveMade = true;
 								break;
 							}// TO POPULATED STACK
@@ -699,6 +649,7 @@ public class FlowerBed extends GameMode
 							card = null;
 							checkForWin = true;
 							setScore(10);
+							System.out.println("3");
 							validMoveMade = true;
 							break;
 						}
@@ -711,7 +662,7 @@ public class FlowerBed extends GameMode
 			if (!validMoveMade && dest != null && card != null)
 			{
 				statusBox.setText("That Is Not A Valid Move");
-			} else {
+			} else if(validMoveMade) {
 				playSound();
 			}
 			// CHECKING FOR WIN
@@ -735,50 +686,7 @@ public class FlowerBed extends GameMode
 
 			if (checkForWin && gameOver)
 			{
-				BufferedReader reader;
-				List<String> lines = new ArrayList<String>();
-
-				try {
-					reader = new BufferedReader(new FileReader("SavedScores.txt"));
-					while(reader.ready()) {
-						lines.add(reader.readLine());
-					}
-					reader.close();
-				} catch(IOException i) {
-					i.printStackTrace();
-				}
-
-				boolean found = false;
-				for(int x = 0; x < lines.size(); x++)
-				{
-					List<String> games = Arrays.asList(lines.get(x).split(":"));
-					if(gameName.equals(games.get(0))) {
-						List<String> highScores = Arrays.asList(games.get(1).split(","));
-						if(score > Integer.parseInt(highScores.get(0))) {
-							highScores.set(0, "" + score);
-						}
-						if(time < Integer.parseInt(highScores.get(1))) {
-							highScores.set(1, "" + time);
-						}
-						lines.set(x, games.get(0) + ":" + highScores.get(0) + "," + highScores.get(1));
-						found = true;
-						break;
-					}
-				}
-				if(!found) {
-					lines.add(gameName + ":" + score + "," + time);
-				}
-
-				try {
-					PrintWriter writer = new PrintWriter("SavedScores.txt");
-					for(int x = 0; x < lines.size(); x++)
-					{
-						writer.println(lines.get(x));
-					}
-					writer.close();
-				} catch(IOException i) {
-					i.printStackTrace();
-				}
+				updateScores();
 				JOptionPane.showMessageDialog(table, "Congratulations! You've Won!");
 				statusBox.setText("Game Over!");
 			}
@@ -798,9 +706,11 @@ public class FlowerBed extends GameMode
 
 	public void playNewGame()
 	{
+		score = 0;
+		time = 0;
 		deck = new FlowerBedCardStack(true); // deal 52 cards
 		deck.shuffle();
-		table.removeAll();
+		//table.removeAll();
         
 		// reset stacks if user starts a new game in the middle of one
 		if (playCardStack != null && final_cards != null)
@@ -840,13 +750,15 @@ public class FlowerBed extends GameMode
 		{
 			int hld = 0;
 			Card c = deck.pop().setFaceup();
+			//c.setImage(cardPath);
 			playCardStack[x].putFirst(c);
 
 			
                         //here
                         for (int y = 0; y < 4; y++)
 			{
-				playCardStack[x].push(c = deck.pop().setFaceup());
+				c = deck.pop().setFaceup();
+				playCardStack[x].push(c);
 			}
 		}
 
@@ -857,7 +769,7 @@ public class FlowerBed extends GameMode
         for (int x = 0; x < deck.showSize(); x++)
 		{
             Card c = (Card) stack.get(x);
-            c.setFaceup();
+			c.setFaceup();
 		}
 
 
@@ -867,7 +779,7 @@ public class FlowerBed extends GameMode
 		scoreBox.setText("Score: 0");
 		timeBox.setText("Seconds: 0");
 		
-		table.add(statusBox);
+		/*table.add(statusBox);
 		table.add(toggleTimerButton);
 		table.add(saveButton);
 		table.add(loadButton);
@@ -877,75 +789,17 @@ public class FlowerBed extends GameMode
 		table.add(mainMenuButton);
 		table.add(newGameButton);
 		table.add(showRulesButton);
-		table.add(scoreBox);
+		table.add(scoreBox);*/
 		table.repaint();
 	}
 
-	private void addButtons() {
-		mainMenuButton.addActionListener(new MainMenuListener());
-
-		newGameButton.addActionListener(new NewGameListener());
-
-		showRulesButton.addActionListener(new ShowRulesListener());
-		
-		toggleTimerButton.addActionListener(new ToggleTimerListener());
-
-		saveButton.addActionListener(new SaveGameListener());
-
-		loadButton.addActionListener(new LoadGameListener());
-
-		mainMenuButton.setBounds(0, TABLE_HEIGHT - 70, 120, 30);
-
-		newGameButton.setBounds(120, TABLE_HEIGHT - 70, 120, 30);
-
-		showRulesButton.setBounds(240, TABLE_HEIGHT - 70, 120, 30);
-
-		gameTitle.setText("<b>Team Three's Solitaire</b> <br> CPSC 4900 <br> Fall 2021");
-		gameTitle.setEditable(false);
-		gameTitle.setOpaque(false);
-		gameTitle.setBounds(775, 20, 100, 100);
-
-		scoreBox.setBounds(360, TABLE_HEIGHT - 70, 120, 30);
-		scoreBox.setText("Score: 0");
-		scoreBox.setEditable(false);
-		scoreBox.setOpaque(false);
-
-		timeBox.setBounds(480, TABLE_HEIGHT - 70, 120, 30);
-		timeBox.setText("Seconds: 0");
-		timeBox.setEditable(false);
-		timeBox.setOpaque(false);
-
-		toggleTimerButton.setBounds(600, TABLE_HEIGHT - 70, 125, 30);
-
-		statusBox.setBounds(725, TABLE_HEIGHT - 70, 180, 30);
-		statusBox.setEditable(false);
-		statusBox.setOpaque(false);
-
-		saveButton.setBounds(905, TABLE_HEIGHT - 70, 125, 30);
-
-		loadButton.setBounds(1030, TABLE_HEIGHT - 70, 125, 30);
-
-		optionsButton.setBounds(1155, TABLE_HEIGHT - 70, 130, 30);
-		optionsButton.setEnabled(false);
-
-		table.add(statusBox);
-		table.add(toggleTimerButton);
-		table.add(saveButton);
-		table.add(loadButton);
-		table.add(optionsButton);
-		table.add(gameTitle);
-		table.add(timeBox);
-		table.add(mainMenuButton);
-		table.add(newGameButton);
-		table.add(showRulesButton);
-		table.add(scoreBox);
-		table.repaint();
-	}
-
-	public void execute(JPanel myTable, JFrame myFrame) {
+	public void execute(JPanel myTable, JFrame myFrame, StartMenu myMenu, String myCardPath) {
 		Container contentPane;
 		table = myTable;
 		frame = myFrame;
+		mainMenu = myMenu;
+		cardPath = myCardPath;
+
 
 		frame.setSize(TABLE_WIDTH, TABLE_HEIGHT);
 
@@ -957,7 +811,7 @@ public class FlowerBed extends GameMode
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
         playNewGame();
-		addButtons();
+		//addButtons();
 		startTimer();
 
 

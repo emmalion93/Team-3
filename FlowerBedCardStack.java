@@ -187,6 +187,7 @@ class FlowerBedCardStack extends JComponent
 	protected void paintComponent(Graphics g)
 	{
 		super.paintComponent(g);
+		//TODO: fix this, its lagging everything apparently
 		if (playStack)
 		{
 			removeAll();

@@ -45,7 +45,7 @@ class Card extends JPanel
 
 	public static final int CORNER_ANGLE = 25;
 
-	private String imageFile = "CardImages\\greywyvern-cardset\\";
+	private String imageFile = "CardImages\\original\\";
 	private String imageInfo;
 	private Image myImage;
 
@@ -86,6 +86,21 @@ class Card extends JPanel
 			e.printStackTrace();
 		}
 	}
+
+	/*public void setImage(String myPath) {
+		imageFile = myPath;
+		imageInfo = getImageInfo();
+		try {
+			if(_faceup) {
+				myImage = getImage();
+			} else {
+				myImage = getFaceDownImage();
+			}
+		} catch (IOException e) {
+			System.out.println("opps");
+			//e.printStackTrace();
+		}
+	}*/
 
 	public Suit getSuit()
 	{
@@ -221,7 +236,7 @@ class Card extends JPanel
 	}
 
 	private String getImageInfo() {
-		String s = imageFile;
+		String s = GameMode.cardPath;// imageFile;
 		switch (_value)
 			{
 			case ACE:
@@ -289,7 +304,7 @@ class Card extends JPanel
 	}
 
 	private Image getFaceDownImage() throws IOException {
-		Image myCard = ImageIO.read(new File(imageFile + "back.png"));
+		Image myCard = ImageIO.read(new File(GameMode.cardPath+ "back.png"));//imageFile + "back.png"));
 		myCard = myCard.getScaledInstance(CARD_WIDTH, CARD_HEIGHT, Image.SCALE_SMOOTH);
 		return myCard;
 	}
@@ -298,7 +313,9 @@ class Card extends JPanel
 	public void paintComponent(Graphics g)
 	{
 		Graphics2D g2d = (Graphics2D) g;
-		g.drawImage(myImage, _location.x, _location.y, null);
+		if(myImage != null) {
+			g.drawImage(myImage, _location.x, _location.y, null);
+		}
 	}
 
 }// END Card

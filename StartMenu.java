@@ -22,15 +22,22 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.sound.sampled.FloatControl;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.PrintWriter;
+import java.io.IOException;
+import java.util.Arrays;
+
 public class StartMenu {
 
     // CONSTANTS
-	public static final int TABLE_HEIGHT = Card.CARD_HEIGHT * 4;
-	public static final int TABLE_WIDTH = (Card.CARD_WIDTH * 12) + 100;
+	/*public static final int TABLE_HEIGHT = Card.CARD_HEIGHT * 4;
+	public static final int TABLE_WIDTH = (Card.CARD_WIDTH * 12) + 100;*/
 
     // GUI COMPONENTS (top level)
     private static final JFrame frame = new JFrame("Solitaire");
     protected static final JPanel table = new JPanel();
+	protected static final MenuButtons menuButtons = new MenuButtons(table, frame);
     // other components
     private static JEditorPane gameTitle = new JEditorPane("text/html", "");
     private static JButton showRulesButton = new JButton("Show Rules");
@@ -50,12 +57,12 @@ public class StartMenu {
 	private List<GameMode> myGameModes = new ArrayList<GameMode>();
 	private List<GameModeButton> gameModeButtons = new ArrayList<GameModeButton>();
 
-	private Clip music;
-	private int volumeMax = 6;
-	private int volumeMin = -54;
-	private int volumeStart = -20;
+	public static Clip music;
+	public static int volumeMax = 6;
+	public static int volumeMin = -54;
+	public static int volumeStart = -20;
 	public static int volume = -20;
-	private static int musicVolume = -20;
+	public static int musicVolume = -20;
 
 	private class ShowFavoritesListener implements ActionListener
 	{
@@ -76,6 +83,7 @@ public class StartMenu {
 
 	private void showFavorites() {
 		table.removeAll();
+		table.add(showFavoritesButton);
 
 		showFavoritesButton.setText("Show All");
 
@@ -83,137 +91,27 @@ public class StartMenu {
 		for (int x = 0; x < gameModeButtons.size(); x++)
 		{
 			if(gameModeButtons.get(x).getFavorite()) {
-				int height = 40 + 90 * count;
+				int height = 90 + 90 * count;
 				gameModeButtons.get(x).setPosition(20, height);
 				count++;
 			}
 		}
-		addButtons();
+		menuButtons.addButtons();
 		table.repaint();
 	}
 
 	private void showAll() {
 		table.removeAll();
+		table.add(showFavoritesButton);
 
 		showFavoritesButton.setText("Show Favorites");
 		for (int x = 0; x < gameModeButtons.size(); x++)
 		{
-			int height = 40 + 90 * x;
+			int height = 90 + 90 * x;
 			gameModeButtons.get(x).setPosition(20, height);
 		}
-		addButtons();
+		menuButtons.addButtons();
 		table.repaint();
-	}
-
-	private void addButtons() {
-		
-
-		table.add(statusBox);
-		table.add(toggleTimerButton);
-		table.add(gameTitle);
-		table.add(timeBox);
-		table.add(newGameButton);
-		table.add(mainMenuButton);
-		table.add(saveButton);
-		table.add(loadButton);
-		table.add(optionsButton);
-		table.add(showRulesButton);
-		table.add(scoreBox);
-		table.add(showFavoritesButton);
-	}
-
-	private class optionsListener implements ActionListener
-	{
-		private JFrame ruleFrame = new JFrame("OPTIONS");
-		private JPanel ruleTable = new JPanel();
-		private JSlider volumeSlider = new JSlider(JSlider.HORIZONTAL, volumeMin, volumeMax, volumeStart);
-		private JSlider musicVolumeSlider = new JSlider(JSlider.HORIZONTAL, volumeMin, volumeMax, volumeStart);
-		private JEditorPane volumeText = new JEditorPane();
-		private JEditorPane musicVolumeText = new JEditorPane();
-		private JButton confirmButton = new JButton("Confirm");
-
-		@Override
-		public void actionPerformed(ActionEvent e)
-		{
-			ruleTable.removeAll();
-			Container contentPane;
-
-
-			ruleTable.setLayout(null);
-
-			contentPane = ruleFrame.getContentPane();
-			contentPane.add(ruleTable);
-
-			ruleFrame.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-			ruleFrame.setSize(400, 400);
-
-			volumeText.setText("Effects Volume: ");
-			volumeText.setFont(new Font("Arial", Font.BOLD, 15));
-			volumeText.setEditable(false);
-			volumeText.setOpaque(false);
-			volumeText.setBounds(5, 45, 120, 60);
-			
-			volumeSlider.setName("volumeSlider");
-			volumeSlider.addChangeListener(new SliderListener());
-			volumeSlider.setMajorTickSpacing(10);
-			volumeSlider.setBounds(115, 50, 260, 30);
-			volumeSlider.setPaintTicks(true);
-			volumeSlider.setOpaque(false);
-
-			musicVolumeText.setText("Music Volume: ");
-			musicVolumeText.setFont(new Font("Arial", Font.BOLD, 15));
-			musicVolumeText.setEditable(false);
-			musicVolumeText.setOpaque(false);
-			musicVolumeText.setBounds(5, 95, 120, 60);
-			
-			musicVolumeSlider.setName("musicSlider");
-			musicVolumeSlider.addChangeListener(new SliderListener());
-			musicVolumeSlider.setMajorTickSpacing(10);
-			musicVolumeSlider.setBounds(115, 100, 260, 30);
-			musicVolumeSlider.setPaintTicks(true);
-			musicVolumeSlider.setOpaque(false);
-
-
-			
-			confirmButton.setBounds(135, 330, 130, 30);
-			confirmButton.addActionListener(new confirmOptionsListener());
-			confirmButton.setEnabled(true);
-
-			ruleTable.add(confirmButton);
-			ruleTable.add(volumeSlider);
-			ruleTable.add(volumeText);
-			ruleTable.add(musicVolumeSlider);
-			ruleTable.add(musicVolumeText);
-
-			ruleTable.setVisible(true);
-			ruleFrame.setVisible(true);
-		}
-
-		private class confirmOptionsListener implements ActionListener
-		{
-			@Override
-			public void actionPerformed(ActionEvent e)
-			{
-				
-				FloatControl volumeControl = (FloatControl) music.getControl(FloatControl.Type.MASTER_GAIN);
-				volumeControl.setValue(musicVolume);
-				ruleFrame.dispose();
-			}
-		}
-
-		private class SliderListener implements ChangeListener
-		{
-			@Override
-			public void stateChanged(ChangeEvent e)
-			{
-				JSlider slider = (JSlider) e.getSource();
-				if(slider.getName() == "musicSlider") {
-					musicVolume = (int)slider.getValue();
-				} else {
-					volume = (int)slider.getValue();
-				}
-			}
-		}
 	}
 
 	private void startMusic() {
@@ -232,6 +130,7 @@ public class StartMenu {
 
     private void playMainMenu()
 	{
+
 		startMusic();
 
 		table.removeAll();
@@ -242,67 +141,116 @@ public class StartMenu {
 		int count = 0;
 		for (int x = 0; x < myGameModes.size(); x++)
 		{
-			gameModeButtons.add(new GameModeButton(myGameModes.get(x), table, frame));
+			gameModeButtons.add(new GameModeButton(myGameModes.get(x), table, frame, this));
 			if(gameModeButtons.get(x).getFavorite()) {
-				int height = 40 + 90 * count;
+				int height = 90 + 90 * count;
 				gameModeButtons.get(x).setPosition(20, height);
 				count++;
 			}
 		}
 
-		showFavoritesButton.setBounds(420, 30, 150, 30);
+		showFavoritesButton.setBounds(0, 50, 150, 30);
 		showFavoritesButton.addActionListener(new ShowFavoritesListener());
 		showFavorites();
 		
-		mainMenuButton.setBounds(0, TABLE_HEIGHT - 70, 120, 30);
-		mainMenuButton.setEnabled(false);
-		
-		newGameButton.setBounds(120, TABLE_HEIGHT - 70, 120, 30);
-		newGameButton.setEnabled(false);
-
-		showRulesButton.setBounds(240, TABLE_HEIGHT - 70, 120, 30);
-		showRulesButton.setEnabled(false);
-
-		gameTitle.setText("<b>Team Three's Solitaire</b> <br> CPSC 4900 <br> Fall 2021");
-		gameTitle.setEditable(false);
-		gameTitle.setOpaque(false);
-		gameTitle.setBounds(775, 20, 100, 100);
-
-		scoreBox.setBounds(360, TABLE_HEIGHT - 70, 120, 30);
-		scoreBox.setText("Score: 0");
-		scoreBox.setEditable(false);
-		scoreBox.setOpaque(false);
-
-		timeBox.setBounds(480, TABLE_HEIGHT - 70, 120, 30);
-		timeBox.setText("Seconds: 0");
-		timeBox.setEditable(false);
-		timeBox.setOpaque(false);
-
-		toggleTimerButton.setBounds(600, TABLE_HEIGHT - 70, 125, 30);
-		toggleTimerButton.setEnabled(false);
-
-		statusBox.setBounds(725, TABLE_HEIGHT - 70, 180, 30);
-		statusBox.setEditable(false);
-		statusBox.setOpaque(false);
-
-		saveButton.setBounds(905, TABLE_HEIGHT - 70, 125, 30);
-		saveButton.setEnabled(false);
-
-		loadButton.setBounds(1030, TABLE_HEIGHT - 70, 125, 30);
-		loadButton.setEnabled(false);
-
-		optionsButton.setBounds(1155, TABLE_HEIGHT - 70, 130, 30);
-		optionsButton.addActionListener(new optionsListener());
-		optionsButton.setEnabled(true);
-
-		addButtons();
 		table.repaint();
+	}
+
+	public void updateScores(String gameName, int score, int time) {
+		BufferedReader reader;
+		List<String> lines = new ArrayList<String>();
+
+		try {
+			reader = new BufferedReader(new FileReader("SavedScores.txt"));
+			while(reader.ready()) {
+				lines.add(reader.readLine());
+			}
+			reader.close();
+		} catch(IOException i) {
+			i.printStackTrace();
+		}
+
+		boolean found = false;
+		for(int x = 0; x < lines.size(); x++)
+		{
+			List<String> games = Arrays.asList(lines.get(x).split(":"));
+			if(gameName.equals(games.get(0))) {
+				List<String> highScores = Arrays.asList(games.get(1).split(","));
+				if(score > Integer.parseInt(highScores.get(0))) {
+					highScores.set(0, "" + score);
+				}
+				if(time < Integer.parseInt(highScores.get(1))) {
+					highScores.set(1, "" + time);
+				}
+				lines.set(x, games.get(0) + ":" + highScores.get(0) + "," + highScores.get(1));
+				found = true;
+				break;
+			}
+		}
+		if(!found) {
+			lines.add(gameName + ":" + score + "," + time);
+		}
+
+		try {
+			PrintWriter writer = new PrintWriter("SavedScores.txt");
+			for(int x = 0; x < lines.size(); x++)
+			{
+				writer.println(lines.get(x));
+			}
+			writer.close();
+		} catch(IOException i) {
+			i.printStackTrace();
+		}
+	}
+
+	public void saveGame(String cardList) {
+		try {
+			PrintWriter writer = new PrintWriter("SavedFile.txt");
+			writer.print(cardList);
+			writer.close();
+		} catch(IOException i) {
+			i.printStackTrace();
+		}
+	}
+
+	public List<String> loadGame() {
+		BufferedReader reader;
+		List<String> lines = new ArrayList<String>();
+
+		try {
+			reader = new BufferedReader(new FileReader("SavedFile.txt"));
+			while(reader.ready()) {
+				lines.add(reader.readLine());
+			}
+			reader.close();
+		} catch(IOException i) {
+			i.printStackTrace();
+		}
+		return lines;
+	}
+
+	public void returnToMenu() {
+		table.removeAll();
+		showFavorites();
+		menuButtons.addButtons();
+		menuButtons.disableMainMenuButtons();
+		menuButtons.stopTimer();
+		table.repaint();
+	}
+
+	public void startGame(GameMode gameMode) {
+		table.removeAll();
+		menuButtons.addButtons();
+		menuButtons.enableAllButtons();
+		menuButtons.setGameMode(gameMode);
+		menuButtons.startTimer();
+		gameMode.execute(table ,frame, this, "CardImages\\greywyvern-cardset\\");
 	}
 
 	public static void execute() {
 		Container contentPane;
 
-		frame.setSize(TABLE_WIDTH, TABLE_HEIGHT);
+		frame.setSize(FlowerBed.TABLE_WIDTH, FlowerBed.TABLE_HEIGHT);
 
 		table.setLayout(null);
 		table.setBackground(new Color(0, 180, 0));
@@ -312,7 +260,11 @@ public class StartMenu {
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
 		StartMenu menu = new StartMenu();
+		menuButtons.generateButtons();
+		menuButtons.disableMainMenuButtons();
         menu.playMainMenu();
+		
+		
 
 		frame.setVisible(true);
 	}

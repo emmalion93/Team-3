@@ -34,11 +34,13 @@ public class GameModeButton {
     private int x_pos;
     private int y_pos;
     private boolean favorite;
+	private StartMenu menu;
 
-    public GameModeButton(GameMode myGM, JPanel myTable, JFrame myFrame) {
+    public GameModeButton(GameMode myGM, JPanel myTable, JFrame myFrame, StartMenu myMenu) {
         gameMode = myGM;
         name = myGM.getName();
         table = myTable;
+		menu = myMenu;
 
         frame = myFrame;
 
@@ -95,7 +97,8 @@ public class GameModeButton {
 		@Override
 		public void actionPerformed(ActionEvent e)
 		{
-            gameMode.execute(table ,frame);
+			menu.startGame(gameMode);
+            //gameMode.execute(table ,frame);
 		}
 
 	}

@@ -108,7 +108,7 @@ public class Solitaire extends GameMode
 	}
 
 	// the pause timer button uses this
-	protected static void toggleTimer()
+	public void toggleTimer()
 	{
 		if (timeRunning && scoreClock != null)
 		{
@@ -130,7 +130,7 @@ public class Solitaire extends GameMode
 	}
 
 	// BUTTON LISTENERS
-	private static class NewGameListener implements ActionListener
+	private class NewGameListener implements ActionListener
 	{
 		@Override
 		public void actionPerformed(ActionEvent e)
@@ -140,7 +140,7 @@ public class Solitaire extends GameMode
 
 	}
 
-	private static class ToggleTimerListener implements ActionListener
+	private class ToggleTimerListener implements ActionListener
 	{
 		@Override
 		public void actionPerformed(ActionEvent e)
@@ -676,7 +676,7 @@ public class Solitaire extends GameMode
 		}// end mousePressed()
 	}
 
-	private static void playNewGame()
+	public void playNewGame()
 	{
 		deck = new CardStack(true); // deal 52 cards
 		deck.shuffle();
