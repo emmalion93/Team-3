@@ -1,4 +1,7 @@
 import java.awt.event.ActionListener;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import javax.swing.JButton;
 import javax.swing.JPanel;
@@ -14,6 +17,7 @@ import java.io.FileReader;
 import java.util.List;
 import java.util.ArrayList;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Arrays;
 
 
@@ -31,33 +35,36 @@ public class GameModeButton {
     private int y_pos;
     private boolean favorite;
 
-    public GameModeButton(GameMode myGM, JPanel myTable, JFrame myFrame, int my_x_pos, int my_y_pos) {
+    public GameModeButton(GameMode myGM, JPanel myTable, JFrame myFrame) {
         gameMode = myGM;
         name = myGM.getName();
         table = myTable;
-        x_pos = my_x_pos;
-        y_pos = my_y_pos;
+
         frame = myFrame;
 
         gameButton = new JButton(name);
         gameButton.setName(name);
-        gameButton.addActionListener(new NewGameListener());
+        gameButton.addActionListener(new ChooseGameListener());
 
-        String[] highScores = getHighScore(name).split(",");
+        String[] highScores = getGameInformation(name).split(",");
         highScoreBox = new JTextPane();
-        highScoreBox.setText("High Score \nScore: " + highScores[0] + "\n Time: " + highScores[1]);
+        highScoreBox.setText("Score: " + highScores[0] + "\n Time: " + highScores[1]);
         highScoreBox.setEditable(false);
-        highScoreBox.setOpaque(false);
+		highScoreBox.setBackground(Color.GREEN);
+		highScoreBox.setFont(new Font("Arial", Font.PLAIN, 12));
 
         checkBox= new JCheckBox();
         checkBox.addActionListener(new CheckFavoritesListener());
         checkBox.setName(name);
+		checkBox.setBackground(Color.GREEN);
+		checkBox.setSelected(favorite);
 
-        gameinformationButton = new JButton("Description");
+        gameinformationButton = new JButton("?");
         gameinformationButton.setName(name);
         gameinformationButton.addActionListener(new ShowDescriptionListener());
+		gameinformationButton.setMargin(new Insets(1,1,1,1));
+		gameinformationButton.setFont(new Font("Arial", Font.BOLD, 15));
 
-        setPosition(x_pos, y_pos);
     }
 
     public void setPosition(int my_x_pos, int my_y_pos) {
@@ -66,24 +73,24 @@ public class GameModeButton {
 
         gameButton.setBounds(x_pos, my_y_pos, 120, 60);
 
-        highScoreBox.setBounds(x_pos + 130, my_y_pos, 120, 60);
+        highScoreBox.setBounds(x_pos + 21, my_y_pos + 60, 80, 30);
         
-        checkBox.setBounds(x_pos - 20, my_y_pos, 20, 20);
+        checkBox.setBounds(x_pos + 1, my_y_pos + 60, 20, 30);
 
-        gameinformationButton.setBounds(x_pos + 250, my_y_pos + 5, 120, 30);
+        gameinformationButton.setBounds(x_pos + 100, my_y_pos + 60, 20, 30);
         addButtons();
     }
 
     private void addButtons() {
+		table.add(checkBox);
         table.add(gameButton);
         table.add(highScoreBox);
-        table.add(checkBox);
         table.add(gameinformationButton);
     }
 
     public boolean getFavorite() { return favorite; }
 
-    private class NewGameListener implements ActionListener
+    private class ChooseGameListener implements ActionListener
 	{
 		@Override
 		public void actionPerformed(ActionEvent e)
@@ -130,10 +137,11 @@ public class GameModeButton {
 			} else {
 				favorite = false;
 			}
+			updateFavoriteInformation();
 		}
 	}
 
-    private String getHighScore(String name) {
+    private String getGameInformation(String name) {
 		BufferedReader reader;
 		List<String> lines = new ArrayList<String>();
 		String highScores = "-,-";
@@ -152,12 +160,57 @@ public class GameModeButton {
 		{
 			List<String> games = Arrays.asList(lines.get(x).split(":"));
 			if(name.equals(games.get(0))) {
-
-				highScores = games.get(1);
+				if(games.get(1).equals("0")) {
+					favorite = false;
+				} else {
+					favorite = true;
+				}
+				highScores = games.get(2);
 				break;
 			}
 		}
 
 		return highScores;
+	}
+
+	private void updateFavoriteInformation() {
+		BufferedReader reader;
+		List<String> lines = new ArrayList<String>();
+		String savedLines = "";
+
+		try {
+			reader = new BufferedReader(new FileReader("SavedScores.txt"));
+			while(reader.ready()) {
+				lines.add(reader.readLine());
+			}
+			reader.close();
+		} catch(IOException i) {
+			i.printStackTrace();
+		}
+
+		for(int x = 0; x < lines.size(); x++)
+		{
+			List<String> games = Arrays.asList(lines.get(x).split(":"));
+			if(name.equals(games.get(0))) {
+				if(favorite) {
+					games.set(1, "1");
+				} else {
+					games.set(1, "0");
+				}
+				savedLines = savedLines + games.get(0) + ":" + games.get(1) + ":" + games.get(2) + "\n";
+			} else {
+				savedLines = savedLines + lines.get(x) + "\n";
+			}
+		}
+
+
+
+		try {
+			PrintWriter writer = new PrintWriter("SavedScores.txt");
+			writer.print(savedLines);
+			writer.close();
+		} catch(IOException i) {
+			i.printStackTrace();
+		}
 	}
 }

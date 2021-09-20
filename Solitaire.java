@@ -40,8 +40,8 @@ public class Solitaire extends GameMode
 	private static CardStack deck; // populated with standard 52 card deck
 
 	// GUI COMPONENTS (top level)
-	private static final JFrame frame = new JFrame("Klondike Solitaire");
-	protected static final JPanel table = new JPanel();
+	private static JFrame frame = new JFrame("Klondike Solitaire");
+	protected static JPanel table = new JPanel();
 	// other components
 	private static JEditorPane gameTitle = new JEditorPane("text/html", "");
 	private static JButton showRulesButton = new JButton("Show Rules");
@@ -206,7 +206,7 @@ public class Solitaire extends GameMode
 	 * as the game logic. This determines where Cards can be moved according to
 	 * the rules of Klondike solitiaire
 	 */
-	private static class CardMovementManager extends MouseAdapter
+	private class CardMovementManager extends MouseAdapter
 	{
 		private Card prevCard = null;// tracking card for waste stack
 		private Card movedCard = null;// card moved from waste stack
@@ -637,6 +637,8 @@ public class Solitaire extends GameMode
 			if (!validMoveMade && dest != null && card != null)
 			{
 				statusBox.setText("That Is Not A Valid Move");
+			} else {
+				playSound();
 			}
 			// CHECKING FOR WIN
 			if (checkForWin)
@@ -768,8 +770,10 @@ public class Solitaire extends GameMode
 		table.repaint();
 	}
 
-	public void execute() {
+	public void execute(JPanel myTable, JFrame myFrame) {
 		Container contentPane;
+		table = myTable;
+		frame = myFrame;
 
 		frame.setSize(TABLE_WIDTH, TABLE_HEIGHT);
 

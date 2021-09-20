@@ -711,6 +711,8 @@ public class FlowerBed extends GameMode
 			if (!validMoveMade && dest != null && card != null)
 			{
 				statusBox.setText("That Is Not A Valid Move");
+			} else {
+				playSound();
 			}
 			// CHECKING FOR WIN
 			if (checkForWin)
@@ -963,10 +965,5 @@ public class FlowerBed extends GameMode
 		table.addMouseMotionListener(new CardMovementManager());
 
 		frame.setVisible(true);
-	}
-
-	public static void main(String[] args)
-	{
-
 	}
 }

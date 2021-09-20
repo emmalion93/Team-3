@@ -6,7 +6,7 @@ import java.awt.Rectangle;
 import java.awt.geom.RoundRectangle2D;
 
 /*
- * Adapts the CardStack to be used as the final
+ * Adapts the FlowerBedCardStack to be used as the final
  * (foundation) stack
  */
 class FlowerBedFinalStack extends FlowerBedCardStack

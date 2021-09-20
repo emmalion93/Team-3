@@ -1,16 +1,26 @@
 import java.awt.Container;
 import java.awt.Color;
+import java.awt.Font;
 import javax.swing.JButton;
 import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JSlider;
 import javax.swing.JTextField;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.JDialog;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import java.util.List;
 import java.util.ArrayList;
+
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.FloatControl;
 
 public class StartMenu {
 
@@ -34,11 +44,18 @@ public class StartMenu {
     private static JTextField timeBox = new JTextField();// displays the time
     private static JTextField statusBox = new JTextField();// status messages
 
-	private JButton showFavoritesButton = new JButton("Show Favorites");
-	private boolean showFavorites = true;
+	private JButton showFavoritesButton = new JButton("Show All");
+	private boolean showFavorites = false;
 
 	private List<GameMode> myGameModes = new ArrayList<GameMode>();
 	private List<GameModeButton> gameModeButtons = new ArrayList<GameModeButton>();
+
+	private Clip music;
+	private int volumeMax = 6;
+	private int volumeMin = -54;
+	private int volumeStart = -20;
+	public static int volume = -20;
+	private static int musicVolume = -20;
 
 	private class ShowFavoritesListener implements ActionListener
 	{
@@ -66,7 +83,7 @@ public class StartMenu {
 		for (int x = 0; x < gameModeButtons.size(); x++)
 		{
 			if(gameModeButtons.get(x).getFavorite()) {
-				int height = 40 + 70 * count;
+				int height = 40 + 90 * count;
 				gameModeButtons.get(x).setPosition(20, height);
 				count++;
 			}
@@ -81,7 +98,7 @@ public class StartMenu {
 		showFavoritesButton.setText("Show Favorites");
 		for (int x = 0; x < gameModeButtons.size(); x++)
 		{
-			int height = 40 + 70 * x;
+			int height = 40 + 90 * x;
 			gameModeButtons.get(x).setPosition(20, height);
 		}
 		addButtons();
@@ -105,21 +122,137 @@ public class StartMenu {
 		table.add(showFavoritesButton);
 	}
 
+	private class optionsListener implements ActionListener
+	{
+		private JFrame ruleFrame = new JFrame("OPTIONS");
+		private JPanel ruleTable = new JPanel();
+		private JSlider volumeSlider = new JSlider(JSlider.HORIZONTAL, volumeMin, volumeMax, volumeStart);
+		private JSlider musicVolumeSlider = new JSlider(JSlider.HORIZONTAL, volumeMin, volumeMax, volumeStart);
+		private JEditorPane volumeText = new JEditorPane();
+		private JEditorPane musicVolumeText = new JEditorPane();
+		private JButton confirmButton = new JButton("Confirm");
+
+		@Override
+		public void actionPerformed(ActionEvent e)
+		{
+			ruleTable.removeAll();
+			Container contentPane;
+
+
+			ruleTable.setLayout(null);
+
+			contentPane = ruleFrame.getContentPane();
+			contentPane.add(ruleTable);
+
+			ruleFrame.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+			ruleFrame.setSize(400, 400);
+
+			volumeText.setText("Effects Volume: ");
+			volumeText.setFont(new Font("Arial", Font.BOLD, 15));
+			volumeText.setEditable(false);
+			volumeText.setOpaque(false);
+			volumeText.setBounds(5, 45, 120, 60);
+			
+			volumeSlider.setName("volumeSlider");
+			volumeSlider.addChangeListener(new SliderListener());
+			volumeSlider.setMajorTickSpacing(10);
+			volumeSlider.setBounds(115, 50, 260, 30);
+			volumeSlider.setPaintTicks(true);
+			volumeSlider.setOpaque(false);
+
+			musicVolumeText.setText("Music Volume: ");
+			musicVolumeText.setFont(new Font("Arial", Font.BOLD, 15));
+			musicVolumeText.setEditable(false);
+			musicVolumeText.setOpaque(false);
+			musicVolumeText.setBounds(5, 95, 120, 60);
+			
+			musicVolumeSlider.setName("musicSlider");
+			musicVolumeSlider.addChangeListener(new SliderListener());
+			musicVolumeSlider.setMajorTickSpacing(10);
+			musicVolumeSlider.setBounds(115, 100, 260, 30);
+			musicVolumeSlider.setPaintTicks(true);
+			musicVolumeSlider.setOpaque(false);
+
+
+			
+			confirmButton.setBounds(135, 330, 130, 30);
+			confirmButton.addActionListener(new confirmOptionsListener());
+			confirmButton.setEnabled(true);
+
+			ruleTable.add(confirmButton);
+			ruleTable.add(volumeSlider);
+			ruleTable.add(volumeText);
+			ruleTable.add(musicVolumeSlider);
+			ruleTable.add(musicVolumeText);
+
+			ruleTable.setVisible(true);
+			ruleFrame.setVisible(true);
+		}
+
+		private class confirmOptionsListener implements ActionListener
+		{
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				
+				FloatControl volumeControl = (FloatControl) music.getControl(FloatControl.Type.MASTER_GAIN);
+				volumeControl.setValue(musicVolume);
+				ruleFrame.dispose();
+			}
+		}
+
+		private class SliderListener implements ChangeListener
+		{
+			@Override
+			public void stateChanged(ChangeEvent e)
+			{
+				JSlider slider = (JSlider) e.getSource();
+				if(slider.getName() == "musicSlider") {
+					musicVolume = (int)slider.getValue();
+				} else {
+					volume = (int)slider.getValue();
+				}
+			}
+		}
+	}
+
+	private void startMusic() {
+		try {
+			AudioInputStream audioStream = AudioSystem.getAudioInputStream(this.getClass().getResource("Sounds\\Loop_The_Old_Tower_Inn.wav"));
+			music = AudioSystem.getClip();
+			music.open(audioStream);
+			music.loop(Clip.LOOP_CONTINUOUSLY);
+			FloatControl volumeControl = (FloatControl) music.getControl(FloatControl.Type.MASTER_GAIN);
+			volumeControl.setValue(musicVolume);
+			music.start();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
     private void playMainMenu()
 	{
+		startMusic();
+
 		table.removeAll();
 
 		myGameModes.add(new FlowerBed());
 		myGameModes.add(new Solitaire());
 
+		int count = 0;
 		for (int x = 0; x < myGameModes.size(); x++)
 		{
-			gameModeButtons.add(new GameModeButton(myGameModes.get(x), table, frame, 20, 40 + 70 * x));
+			gameModeButtons.add(new GameModeButton(myGameModes.get(x), table, frame));
+			if(gameModeButtons.get(x).getFavorite()) {
+				int height = 40 + 90 * count;
+				gameModeButtons.get(x).setPosition(20, height);
+				count++;
+			}
 		}
 
 		showFavoritesButton.setBounds(420, 30, 150, 30);
 		showFavoritesButton.addActionListener(new ShowFavoritesListener());
-
+		showFavorites();
 		
 		mainMenuButton.setBounds(0, TABLE_HEIGHT - 70, 120, 30);
 		mainMenuButton.setEnabled(false);
@@ -159,7 +292,8 @@ public class StartMenu {
 		loadButton.setEnabled(false);
 
 		optionsButton.setBounds(1155, TABLE_HEIGHT - 70, 130, 30);
-		optionsButton.setEnabled(false);
+		optionsButton.addActionListener(new optionsListener());
+		optionsButton.setEnabled(true);
 
 		addButtons();
 		table.repaint();
