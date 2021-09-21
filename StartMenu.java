@@ -9,6 +9,7 @@ import javax.swing.JSlider;
 import javax.swing.JTextField;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.event.MouseInputListener;
 import javax.swing.JDialog;
 
 import java.awt.event.ActionEvent;
@@ -234,9 +235,16 @@ public class StartMenu {
 		showFavorites();
 		menuButtons.addButtons();
 		menuButtons.disableMainMenuButtons();
+		menuButtons.setGameMode(null);
 		menuButtons.stopTimer();
 		table.repaint();
 	}
+
+	/*public void replaceButton() {
+		if(myGameModes.get(0) instanceof FlowerBed) {
+			myGameModes.set(0, new FlowerBed());
+		}
+	}*/
 
 	public void startGame(GameMode gameMode) {
 		table.removeAll();

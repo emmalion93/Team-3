@@ -71,9 +71,52 @@ public class FlowerBed extends GameMode
 	private static FlowerBedCardStack[] playCardStack; // Tableau stacks
 	private static FlowerBedCardStack deck; // populated with standard 52 card deck
 
+	// CARD MOVEMENT
+	private Card prevCard = null;// tracking card for waste stack
+	private Card movedCard = null;// card moved from waste stack
+	private boolean sourceIsFinalDeck = false;
+	private boolean putBackOnDeck = true;// used for waste card recycling
+	private boolean checkForWin = false;// should we check if game is over?
+	private boolean gameOver = true;// easier to negate this than affirm it
+	private Point start = null;// where mouse was clicked
+	private Point stop = null;// where mouse was released
+	private Card card = null; // card to be moved
+	// used for moving single cards
+	private FlowerBedCardStack source = null;
+	private FlowerBedCardStack dest = null;
+	// used for moving a stack of cards
+	private FlowerBedCardStack transferStack = new FlowerBedCardStack(false);
+
 	public FlowerBed() {
 		gameName = "Flower Bed";
 		gameDesc = "Move cards one at a time onto stacks regardless of suit/color to fill foundations.";
+	
+		gameRules = "<b>Klondike Solitaire Rules</b>"
+				+ "<br><br> (From Wikipedia) Taking a shuffled standard 52-card deck of playing cards (without Jokers),"
+				+ " one upturned card is dealt on the left of the playing area, then six downturned cards"
+				+ " (from left to right).<p> On top of the downturned cards, an upturned card is dealt on the "
+				+ "left-most downturned pile, and downturned cards on the rest until all piles have an "
+				+ "upturned card. The piles should look like the figure to the right.<p>The four foundations "
+				+ "(light rectangles in the upper right of the figure) are built up by suit from Ace "
+				+ "(low in this game) to King, and the tableau piles can be built down by alternate colors,"
+				+ " and partial or complete piles can be moved if they are built down by alternate colors also. "
+				+ "Any empty piles can be filled with a King or a pile of cards with a King.<p> The point of "
+				+ "the game is to build up a stack of cards starting with 2 and ending with King, all of "
+				+ "the same suit. Once this is accomplished, the goal is to move this to a foundation, "
+				+ "where the player has previously placed the Ace of that suit. Once the player has done this, "
+				+ "they will have \"finished\" that suit- the goal being, of course, to finish all suits, "
+				+ "at which time the player will have won.<br><br><b> Scoring </b><br><br>"
+				+ "Moving cards directly from the Waste stack to a Foundation awards 10 points. However, "
+				+ "if the card is first moved to a Tableau, and then to a Foundation, then an extra 5 points "
+				+ "are received for a total of 15. Thus in order to receive a maximum score, no cards should be moved "
+				+ "directly from the Waste to Foundation.<p>	Time can also play a factor in Windows Solitaire, if the Timed game option is selected. For every 10 seconds of play, 2 points are taken away."
+				+ "<b><br><br>Notes On My Implementation</b><br><br>"
+				+ "Drag cards to and from any stack. As long as the move is valid the card, or stack of "
+				+ "cards, will be repositioned in the desired spot. The game follows the standard scoring and time"
+				+ " model explained above with only one waste card shown at a time."
+				+ "<p> The timer starts running as soon as "
+				+ "the game begins, but it may be paused by pressing the pause button at the bottom of"
+				+ "the screen. ";
 	}
 
 	// moves a card to abs location within a component
@@ -269,7 +312,7 @@ public class FlowerBed extends GameMode
 		timeBox.repaint();
 	}
 
-	public String getRules() {
+	/*public String getRules() {
 	 	String rulesText = "<b>Klondike Solitaire Rules</b>"
 				+ "<br><br> (From Wikipedia) Taking a shuffled standard 52-card deck of playing cards (without Jokers),"
 				+ " one upturned card is dealt on the left of the playing area, then six downturned cards"
@@ -297,334 +340,298 @@ public class FlowerBed extends GameMode
 				+ "the game begins, but it may be paused by pressing the pause button at the bottom of"
 				+ "the screen. ";
 		return rulesText;
+	}*/
+
+	private boolean validPlayStackMove(Card source, Card dest)
+	{
+		int s_val = source.getValue().ordinal();
+		int d_val = dest.getValue().ordinal();
+		Card.Suit s_suit = source.getSuit();
+		Card.Suit d_suit = dest.getSuit();
+
+		// destination card should be one higher value
+		if ((s_val + 1) == d_val)
+		{
+			return true;
+		} else
+			return false;
 	}
 
-	/*
-	 * This class handles all of the logic of moving the Card components as well
-	 * as the game logic. This determines where Cards can be moved according to
-	 * the rules of Klondike solitiaire
-	 */
-	private class CardMovementManager extends MouseAdapter
+	private boolean validFinalStackMove(Card source, Card dest)
 	{
-		private Card prevCard = null;// tracking card for waste stack
-		private Card movedCard = null;// card moved from waste stack
-		private boolean sourceIsFinalDeck = false;
-		private boolean putBackOnDeck = true;// used for waste card recycling
-		private boolean checkForWin = false;// should we check if game is over?
-		private boolean gameOver = true;// easier to negate this than affirm it
-		private Point start = null;// where mouse was clicked
-		private Point stop = null;// where mouse was released
-		private Card card = null; // card to be moved
-		// used for moving single cards
-		private FlowerBedCardStack source = null;
-		private FlowerBedCardStack dest = null;
-		// used for moving a stack of cards
-		private FlowerBedCardStack transferStack = new FlowerBedCardStack(false);
-
-		private boolean validPlayStackMove(Card source, Card dest)
+		int s_val = source.getValue().ordinal();
+		int d_val = dest.getValue().ordinal();
+		Card.Suit s_suit = source.getSuit();
+		Card.Suit d_suit = dest.getSuit();
+		if (s_val == (d_val + 1)) // destination must one lower
 		{
-			int s_val = source.getValue().ordinal();
-			int d_val = dest.getValue().ordinal();
-			Card.Suit s_suit = source.getSuit();
-			Card.Suit d_suit = dest.getSuit();
-
-			// destination card should be one higher value
-			if ((s_val + 1) == d_val)
-			{
+			if (s_suit == d_suit)
 				return true;
-			} else
+			else
 				return false;
+		} else
+			return false;
+	}
+
+	public Card getTop(Vector stack, Point p) {
+		Card c = null;
+		for (int x = stack.size() - 1; x >= 0; x--)
+		{
+			Card temp = (Card) stack.get(x);
+			temp.getSuit();
+			if(temp.contains(p)) {
+				c = temp;
+			}
+		}
+		return c;
+	}
+
+	public void mousePressed(MouseEvent e)
+	{
+		  prevCard = null;// tracking card for waste stack
+		  movedCard = null;// card moved from waste stack
+		  sourceIsFinalDeck = false;
+		  putBackOnDeck = true;// used for waste card recycling
+		  checkForWin = false;// should we check if game is over?
+		  gameOver = true;// easier to negate this than affirm it
+		  start = null;// where mouse was clicked
+		  stop = null;// where mouse was released
+		  card = null; // card to be moved
+		// used for moving single cards
+		  source = null;
+		  dest = null;
+		// used for moving a stack of cards
+		  transferStack = new FlowerBedCardStack(false);
+
+		System.out.println("mouse");
+		start = e.getPoint();
+		boolean stopSearch = false;
+		statusBox.setText("");
+		transferStack.makeEmpty();
+
+		/*
+			* Here we use transferStack to temporarily hold all the cards above
+			* the selected card in case player wants to move a stack rather
+			* than a single card
+			*/
+		for (int x = 0; x < NUM_PLAY_DECKS; x++)
+		{
+			if (stopSearch)
+				break;
+			source = playCardStack[x];
+			// pinpointing exact card pressed-
+			if(source.contains(start) && source.showSize() > 0) {
+				Card c = (Card) source.getStack().get(0);
+				if(c.contains(start)) {
+					transferStack.putFirst(c);
+					card = c;
+					stopSearch = true;
+					System.out.println("Transfer Size: " + transferStack.showSize());
+				}
+			}
 		}
 
-		private boolean validFinalStackMove(Card source, Card dest)
-		{
-			int s_val = source.getValue().ordinal();
-			int d_val = dest.getValue().ordinal();
-			Card.Suit s_suit = source.getSuit();
-			Card.Suit d_suit = dest.getSuit();
-			if (s_val == (d_val + 1)) // destination must one lower
+		if(card == null) {
+			source = deck;
+			// pinpointing exact card pressed
+			Vector stack = source.getStack();
+			for (int x = 0; x < source.showSize(); x++)
 			{
-				if (s_suit == d_suit)
-					return true;
-				else
-					return false;
-			} else
-				return false;
+				transferStack.makeEmpty();
+				Card c = (Card) stack.get(x);
+				if(source.contains(start) && c == getTop(source.getStack(), start)) {
+					transferStack.putFirst(c);
+					card = c;
+					stopSearch = true;
+					System.out.println("Transfer Size: " + transferStack.showSize());
+					break;
+				}                                    
+			}
 		}
+					
+		
+		
 
-        public Card getTop(Vector stack, Point p) {
-            Card c = null;
-            for (int x = stack.size() - 1; x >= 0; x--)
-            {
-                Card temp = (Card) stack.get(x);
-                temp.getSuit();
-                if(temp.contains(p)) {
-                    c = temp;
-                }
-            }
-            return c;
-        }
-
-		@Override
-		public void mousePressed(MouseEvent e)
+		// FINAL (FOUNDATION) CARD OPERATIONS
+		for (int x = 0; x < NUM_FINAL_DECKS; x++)
 		{
-			start = e.getPoint();
-			boolean stopSearch = false;
-			statusBox.setText("");
-			transferStack.makeEmpty();
+			if (final_cards[x].contains(start))
+			{
+				source = final_cards[x];
+				card = source.getLast();
+				transferStack.putFirst(card);
+				sourceIsFinalDeck = true;
+				break;
+			}
+		}
+		putBackOnDeck = true;
 
-			/*
-			 * Here we use transferStack to temporarily hold all the cards above
-			 * the selected card in case player wants to move a stack rather
-			 * than a single card
-			 */
+	}
+
+	public void mouseReleased(MouseEvent e)
+	{
+		stop = e.getPoint();
+		// used for status bar updates
+		boolean validMoveMade = false;
+
+		// SHOW CARD MOVEMENTS
+		if (movedCard != null)
+		{
+			// Moving from SHOW TO PLAY
 			for (int x = 0; x < NUM_PLAY_DECKS; x++)
 			{
-				if (stopSearch)
+				dest = playCardStack[x];
+				// to empty play stack, only kings can go
+				if (dest.empty() && movedCard != null && dest.contains(stop)
+						&& movedCard.getValue() == Card.Value.KING)
+				{
+					System.out.print("moving new card to empty spot ");
+					movedCard.setXY(dest.getXY());
+					table.remove(prevCard);
+					dest.putFirst(movedCard);
+					table.repaint();
+					movedCard = null;
+					putBackOnDeck = false;
+					setScore(5);
+					System.out.println("-3");
+					validMoveMade = true;
 					break;
-				source = playCardStack[x];
-				// pinpointing exact card pressed-
-				if(source.contains(start) && source.showSize() > 0) {
-					Card c = (Card) source.getStack().get(0);
-					if(c.contains(start)) {
-						transferStack.putFirst(c);
-						card = c;
-						stopSearch = true;
-						System.out.println("Transfer Size: " + transferStack.showSize());
-					}
 				}
+				// this moves stuff from the deck out on the field automatically
+				// to populated play stack
+				/*if (movedCard != null && dest.contains(stop) && !dest.empty() && dest.getFirst().getFaceStatus()
+						&& validPlayStackMove(movedCard, dest.getFirst()))
+				{
+					System.out.print("moving new card ");
+					movedCard.setXY(dest.getFirst().getXY());
+					table.remove(prevCard);
+					dest.putFirst(movedCard);
+					table.repaint();
+					movedCard = null;
+					putBackOnDeck = false;
+					setScore(5);
+					validMoveMade = true;
+					break;
+				}*/
 			}
-
-            if(card == null) {
-                source = deck;
-                // pinpointing exact card pressed
-				Vector stack = source.getStack();
-                for (int x = 0; x < source.showSize(); x++)
-                {
-                    transferStack.makeEmpty();
-                    Card c = (Card) stack.get(x);
-                    if(source.contains(start) && c == getTop(source.getStack(), start)) {
-                        transferStack.putFirst(c);
-                        card = c;
-                        stopSearch = true;
-                        System.out.println("Transfer Size: " + transferStack.showSize());
-                        break;
-                    }                                    
-                }
-            }
-                        
-            
-			
-
-			// FINAL (FOUNDATION) CARD OPERATIONS
+			// Moving from SHOW TO FINAL
 			for (int x = 0; x < NUM_FINAL_DECKS; x++)
 			{
-				if (final_cards[x].contains(start))
+				dest = final_cards[x];
+				// only aces can go first
+				if (dest.empty() && dest.contains(stop))
 				{
-					source = final_cards[x];
-					card = source.getLast();
-					transferStack.putFirst(card);
-					sourceIsFinalDeck = true;
-					break;
-				}
-			}
-			putBackOnDeck = true;
-
-		}
-
-		@Override
-		public void mouseReleased(MouseEvent e)
-		{
-			stop = e.getPoint();
-			// used for status bar updates
-			boolean validMoveMade = false;
-
-			// SHOW CARD MOVEMENTS
-			if (movedCard != null)
-			{
-				// Moving from SHOW TO PLAY
-				for (int x = 0; x < NUM_PLAY_DECKS; x++)
-				{
-					dest = playCardStack[x];
-					// to empty play stack, only kings can go
-					if (dest.empty() && movedCard != null && dest.contains(stop)
-							&& movedCard.getValue() == Card.Value.KING)
+					if (movedCard.getValue() == Card.Value.ACE)
 					{
-						System.out.print("moving new card to empty spot ");
-						movedCard.setXY(dest.getXY());
-						table.remove(prevCard);
-						dest.putFirst(movedCard);
-						table.repaint();
-						movedCard = null;
-						putBackOnDeck = false;
-						setScore(5);
-						System.out.println("-3");
-						validMoveMade = true;
-						break;
-					}
-                    // this moves stuff from the deck out on the field automatically
-					// to populated play stack
-					/*if (movedCard != null && dest.contains(stop) && !dest.empty() && dest.getFirst().getFaceStatus()
-							&& validPlayStackMove(movedCard, dest.getFirst()))
-					{
-						System.out.print("moving new card ");
-						movedCard.setXY(dest.getFirst().getXY());
-						table.remove(prevCard);
-						dest.putFirst(movedCard);
-						table.repaint();
-						movedCard = null;
-						putBackOnDeck = false;
-						setScore(5);
-						validMoveMade = true;
-						break;
-					}*/
-				}
-				// Moving from SHOW TO FINAL
-				for (int x = 0; x < NUM_FINAL_DECKS; x++)
-				{
-					dest = final_cards[x];
-					// only aces can go first
-					if (dest.empty() && dest.contains(stop))
-					{
-						if (movedCard.getValue() == Card.Value.ACE)
-						{
-							dest.push(movedCard);
-							table.remove(prevCard);
-							dest.repaint();
-							table.repaint();
-							movedCard = null;
-							putBackOnDeck = false;
-							setScore(10);
-							System.out.println("-2");
-							validMoveMade = true;
-							break;
-						}
-					}
-					if (!dest.empty() && dest.contains(stop) && validFinalStackMove(movedCard, dest.getLast()))
-					{
-						System.out.println("Destin" + dest.showSize());
 						dest.push(movedCard);
 						table.remove(prevCard);
 						dest.repaint();
 						table.repaint();
 						movedCard = null;
 						putBackOnDeck = false;
-						checkForWin = true;
 						setScore(10);
-						System.out.println("-1");
+						System.out.println("-2");
 						validMoveMade = true;
 						break;
 					}
 				}
-			}// END SHOW STACK OPERATIONS
-
-			// PLAY STACK OPERATIONS
-			if (card != null && source != null)
-			{ // Moving from PLAY TO PLAY
-				for (int x = 0; x < NUM_PLAY_DECKS; x++)
+				if (!dest.empty() && dest.contains(stop) && validFinalStackMove(movedCard, dest.getLast()))
 				{
-					dest = playCardStack[x];
-					// MOVING TO POPULATED STACK
-					if (card.getFaceStatus() == true && dest.contains(stop) && source != dest && !dest.empty()
-							&& validPlayStackMove(card, dest.getFirst()) && transferStack.showSize() == 1)
+					System.out.println("Destin" + dest.showSize());
+					dest.push(movedCard);
+					table.remove(prevCard);
+					dest.repaint();
+					table.repaint();
+					movedCard = null;
+					putBackOnDeck = false;
+					checkForWin = true;
+					setScore(10);
+					System.out.println("-1");
+					validMoveMade = true;
+					break;
+				}
+			}
+		}// END SHOW STACK OPERATIONS
+
+		// PLAY STACK OPERATIONS
+		if (card != null && source != null)
+		{ // Moving from PLAY TO PLAY
+			for (int x = 0; x < NUM_PLAY_DECKS; x++)
+			{
+				dest = playCardStack[x];
+				// MOVING TO POPULATED STACK
+				if (card.getFaceStatus() == true && dest.contains(stop) && source != dest && !dest.empty()
+						&& validPlayStackMove(card, dest.getFirst()) && transferStack.showSize() == 1)
+				{
+					Card c = card;
+					source.removeCard(card);
+
+
+					c.repaint();
+					// if playstack, turn next card up
+					if (source.getFirst() != null)
 					{
-						Card c = card;
-						source.removeCard(card);
-
-
-						c.repaint();
-						// if playstack, turn next card up
-						if (source.getFirst() != null)
-						{
-							Card temp = source.getFirst().setFaceup();
-							temp.repaint();
-							source.repaint();
-						}
-
-						dest.setXY(dest.getXY().x, dest.getXY().y);
-						dest.putFirst(c);
-
-						dest.repaint();
-
-						table.repaint();
-
-						System.out.print("Destination ");
-						dest.showSize();
-						if (sourceIsFinalDeck)
-							setScore(15);
-						else
-							setScore(10);
-						System.out.println("0");
-						validMoveMade = true;
-						break;
-					} else if (dest.empty() && transferStack.showSize() == 1 && dest.contains(stop))
-					{// MOVING TO EMPTY STACK, ONLY KING ALLOWED
-						Card c = card;
-						source.removeCard(card);
-
-
-						c.repaint();
-						// if playstack, turn next card up
-						if (source.getFirst() != null)
-						{
-							Card temp = source.getFirst().setFaceup();
-							temp.repaint();
-							source.repaint();
-						}
-
-						dest.setXY(dest.getXY().x, dest.getXY().y);
-						dest.putFirst(c);
-
-						dest.repaint();
-
-						table.repaint();
-
-						System.out.print("Destination ");
-						dest.showSize();
-						setScore(5);
-						System.out.println("1");
-						validMoveMade = true;
-						break;
+						Card temp = source.getFirst().setFaceup();
+						temp.repaint();
+						source.repaint();
 					}
+
+					dest.setXY(dest.getXY().x, dest.getXY().y);
+					dest.putFirst(c);
+
+					dest.repaint();
+
+					table.repaint();
+
+					System.out.print("Destination ");
+					dest.showSize();
+					if (sourceIsFinalDeck)
+						setScore(15);
+					else
+						setScore(10);
+					System.out.println("0");
+					validMoveMade = true;
+					break;
+				} else if (dest.empty() && transferStack.showSize() == 1 && dest.contains(stop))
+				{// MOVING TO EMPTY STACK, ONLY KING ALLOWED
+					Card c = card;
+					source.removeCard(card);
+
+
+					c.repaint();
+					// if playstack, turn next card up
+					if (source.getFirst() != null)
+					{
+						Card temp = source.getFirst().setFaceup();
+						temp.repaint();
+						source.repaint();
+					}
+
+					dest.setXY(dest.getXY().x, dest.getXY().y);
+					dest.putFirst(c);
+
+					dest.repaint();
+
+					table.repaint();
+
+					System.out.print("Destination ");
+					dest.showSize();
+					setScore(5);
+					System.out.println("1");
+					validMoveMade = true;
+					break;
 				}
-				// from PLAY TO FINAL
-				for (int x = 0; x < NUM_FINAL_DECKS; x++)
-				{
-					dest = final_cards[x];
+			}
+			// from PLAY TO FINAL
+			for (int x = 0; x < NUM_FINAL_DECKS; x++)
+			{
+				dest = final_cards[x];
 
-					if (card.getFaceStatus() == true && source != null && dest.contains(stop) && source != dest)
-					{// TO EMPTY STACK
-						if (dest.empty())// empty final should only take an ACE
-						{
-							if (card.getValue() == Card.Value.ACE)
-							{
-								Card c = card;
-								source.removeCard(card);
-								c.repaint();
-								if (source.getFirst() != null)
-								{
-
-									Card temp = source.getFirst().setFaceup();
-									temp.repaint();
-									source.repaint();
-								}
-
-								dest.setXY(dest.getXY().x, dest.getXY().y);
-								dest.push(c);
-
-								dest.repaint();
-
-								table.repaint();
-
-								System.out.print("Destination ");
-								dest.showSize();
-								card = null;
-								setScore(10);
-								System.out.println("2");
-								validMoveMade = true;
-								break;
-							}// TO POPULATED STACK
-						} else if (validFinalStackMove(card, dest.getLast()))
+				if (card.getFaceStatus() == true && source != null && dest.contains(stop) && source != dest)
+				{// TO EMPTY STACK
+					if (dest.empty())// empty final should only take an ACE
+					{
+						if (card.getValue() == Card.Value.ACE)
 						{
 							Card c = card;
 							source.removeCard(card);
@@ -647,62 +654,87 @@ public class FlowerBed extends GameMode
 							System.out.print("Destination ");
 							dest.showSize();
 							card = null;
-							checkForWin = true;
 							setScore(10);
-							System.out.println("3");
+							System.out.println("2");
 							validMoveMade = true;
 							break;
-						}
-					}
-
-				}
-			}// end cycle through play decks
-
-			// SHOWING STATUS MESSAGE IF MOVE INVALID
-			if (!validMoveMade && dest != null && card != null)
-			{
-				statusBox.setText("That Is Not A Valid Move");
-			} else if(validMoveMade) {
-				playSound();
-			}
-			// CHECKING FOR WIN
-			if (checkForWin)
-			{
-				boolean gameNotOver = false;
-				// cycle through final decks, if they're all full then game over
-				for (int x = 0; x < NUM_FINAL_DECKS; x++)
-				{
-					dest = final_cards[x];
-					if (dest.showSize() != 13)
+						}// TO POPULATED STACK
+					} else if (validFinalStackMove(card, dest.getLast()))
 					{
-						// one deck is not full, so game is not over
-						gameNotOver = true;
+						Card c = card;
+						source.removeCard(card);
+						c.repaint();
+						if (source.getFirst() != null)
+						{
+
+							Card temp = source.getFirst().setFaceup();
+							temp.repaint();
+							source.repaint();
+						}
+
+						dest.setXY(dest.getXY().x, dest.getXY().y);
+						dest.push(c);
+
+						dest.repaint();
+
+						table.repaint();
+
+						System.out.print("Destination ");
+						dest.showSize();
+						card = null;
+						checkForWin = true;
+						setScore(10);
+						System.out.println("3");
+						validMoveMade = true;
 						break;
 					}
 				}
-				if (!gameNotOver)
-					gameOver = true;
-			}
 
-			if (checkForWin && gameOver)
+			}
+		}// end cycle through play decks
+
+		// SHOWING STATUS MESSAGE IF MOVE INVALID
+		if (!validMoveMade && dest != null && card != null)
+		{
+			statusBox.setText("That Is Not A Valid Move");
+		} else if(validMoveMade) {
+			playSound();
+		}
+		// CHECKING FOR WIN
+		if (checkForWin)
+		{
+			boolean gameNotOver = false;
+			// cycle through final decks, if they're all full then game over
+			for (int x = 0; x < NUM_FINAL_DECKS; x++)
 			{
-				updateScores();
-				JOptionPane.showMessageDialog(table, "Congratulations! You've Won!");
-				statusBox.setText("Game Over!");
+				dest = final_cards[x];
+				if (dest.showSize() != 13)
+				{
+					// one deck is not full, so game is not over
+					gameNotOver = true;
+					break;
+				}
 			}
-			// RESET VARIABLES FOR NEXT EVENT
-			start = null;
-			stop = null;
-			source = null;
-			dest = null;
-			card = null;
-			sourceIsFinalDeck = false;
-			checkForWin = false;
-			gameOver = false;
-		}// end mousePressed()
+			if (!gameNotOver)
+				gameOver = true;
+		}
 
-		
-	}
+		if (checkForWin && gameOver)
+		{
+			updateScores();
+			JOptionPane.showMessageDialog(table, "Congratulations! You've Won!");
+			statusBox.setText("Game Over!");
+		}
+		// RESET VARIABLES FOR NEXT EVENT
+		start = null;
+		stop = null;
+		source = null;
+		dest = null;
+		card = null;
+		sourceIsFinalDeck = false;
+		checkForWin = false;
+		gameOver = false;
+	}// end mousePressed()
 
 	public void playNewGame()
 	{
@@ -815,8 +847,8 @@ public class FlowerBed extends GameMode
 		startTimer();
 
 
-		table.addMouseListener(new CardMovementManager());
-		table.addMouseMotionListener(new CardMovementManager());
+		/*table.addMouseListener(new CardMovementManager());
+		table.addMouseMotionListener(new CardMovementManager());*/
 
 		frame.setVisible(true);
 	}

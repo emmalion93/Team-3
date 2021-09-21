@@ -1,6 +1,7 @@
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import java.awt.event.MouseEvent;
 
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -11,6 +12,7 @@ public class GameMode {
     // Game information Variables
 	protected String gameName;
 	protected String gameDesc;
+    protected String gameRules = "No Rules Provided"; 
     protected StartMenu mainMenu;
     protected static boolean timeRunning = false;
     protected int time;
@@ -19,7 +21,7 @@ public class GameMode {
 
     public String getName() { return gameName; }
 	public String getDesc() { return gameDesc; }
-    public String getRules() { return "No Rules Provided"; }
+    public String getRules() { return gameRules; }
 
     public void execute(JPanel myTable, JFrame myFrame, StartMenu myMenu, String myCardPath) { }
 
@@ -28,8 +30,9 @@ public class GameMode {
     public void saveGame() { }
     public void loadGame() { }
     public void toggleTimer() { }
-    public void mousePressed() { }
-    public void mouseReleased() { }
+    public void mousePressed(MouseEvent e) { }
+    public void mouseReleased(MouseEvent e) { }
+    public void mouseMoved(MouseEvent e) { }
 
     public void updateScores() {
         mainMenu.updateScores(gameName, score, time);

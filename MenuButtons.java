@@ -8,6 +8,9 @@ import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JTextField;
 
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+
 import java.awt.Container;
 import java.awt.Font;
 
@@ -268,6 +271,25 @@ public class MenuButtons {
 		}
 	}
 
+	private class CardMovementManager extends MouseAdapter {
+		@Override
+		public void mousePressed(MouseEvent e)
+		{
+			if(currentGameMode != null) {
+				currentGameMode.mousePressed(e);
+			}
+		}
+
+		@Override
+		public void mouseReleased(MouseEvent e)
+		{
+			if(currentGameMode != null) {
+				currentGameMode.mouseReleased(e);
+			}
+		}
+
+	}
+
 
     public void generateButtons() {
         mainMenuButton.addActionListener(new MainMenuListener());
@@ -319,6 +341,8 @@ public class MenuButtons {
 
         positionButtons(_Direction);
         addButtons();
+		table.addMouseListener(new CardMovementManager());
+		table.addMouseMotionListener(new CardMovementManager());
     }
 
     public void positionButtons(Direction myDirection) {
