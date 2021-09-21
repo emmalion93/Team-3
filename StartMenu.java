@@ -1,16 +1,9 @@
 import java.awt.Container;
 import java.awt.Color;
-import java.awt.Font;
 import javax.swing.JButton;
-import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.JSlider;
-import javax.swing.JTextField;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import javax.swing.event.MouseInputListener;
-import javax.swing.JDialog;
+
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -39,18 +32,6 @@ public class StartMenu {
     private static final JFrame frame = new JFrame("Solitaire");
     protected static final JPanel table = new JPanel();
 	protected static final MenuButtons menuButtons = new MenuButtons(table, frame);
-    // other components
-    private static JEditorPane gameTitle = new JEditorPane("text/html", "");
-    private static JButton showRulesButton = new JButton("Show Rules");
-    private static JButton newGameButton = new JButton("New Game");
-	private static JButton saveButton = new JButton("Save Game");
-	private static JButton loadButton = new JButton("Load Game");
-    private static JButton mainMenuButton = new JButton("Main Menu");
-	private static JButton optionsButton = new JButton("Options");
-    private static JButton toggleTimerButton = new JButton("Pause Timer");
-    private static JTextField scoreBox = new JTextField();// displays the score
-    private static JTextField timeBox = new JTextField();// displays the time
-    private static JTextField statusBox = new JTextField();// status messages
 
 	private JButton showFavoritesButton = new JButton("Show All");
 	private boolean showFavorites = false;
@@ -61,9 +42,9 @@ public class StartMenu {
 	public static Clip music;
 	public static int volumeMax = 6;
 	public static int volumeMin = -54;
-	public static int volumeStart = -20;
-	public static int volume = -20;
-	public static int musicVolume = -20;
+	public static int volumeStart = -40;
+	public static int volume = -40;
+	public static int musicVolume = -40;
 
 	private class ShowFavoritesListener implements ActionListener
 	{
@@ -73,11 +54,9 @@ public class StartMenu {
 			if (showFavorites)
 			{
 				showFavorites();
-				showFavorites = false;
 			} else
 			{
 				showAll();
-				showFavorites = true;
 			}
 		}
 	}
@@ -87,6 +66,7 @@ public class StartMenu {
 		table.add(showFavoritesButton);
 
 		showFavoritesButton.setText("Show All");
+		showFavorites = false;
 
 		int count = 0;
 		for (int x = 0; x < gameModeButtons.size(); x++)
@@ -106,6 +86,7 @@ public class StartMenu {
 		table.add(showFavoritesButton);
 
 		showFavoritesButton.setText("Show Favorites");
+		showFavorites = true;
 		for (int x = 0; x < gameModeButtons.size(); x++)
 		{
 			int height = 90 + 90 * x;
@@ -131,7 +112,6 @@ public class StartMenu {
 
     private void playMainMenu()
 	{
-
 		startMusic();
 
 		table.removeAll();
@@ -239,12 +219,6 @@ public class StartMenu {
 		menuButtons.stopTimer();
 		table.repaint();
 	}
-
-	/*public void replaceButton() {
-		if(myGameModes.get(0) instanceof FlowerBed) {
-			myGameModes.set(0, new FlowerBed());
-		}
-	}*/
 
 	public void startGame(GameMode gameMode) {
 		table.removeAll();

@@ -50,21 +50,6 @@ public class FlowerBed extends GameMode
 	private JFrame frame;
 	protected JPanel table = new JPanel();
 	// other components
-	private  JEditorPane gameTitle = new JEditorPane("text/html", "");
-	private JButton showRulesButton = new JButton("Show Rules");
-	private  JButton newGameButton = new JButton("New Game");
-	private  JButton mainMenuButton = new JButton("Main Menu");
-	private  JButton toggleTimerButton = new JButton("Pause Timer");
-	private  JButton saveButton = new JButton("Save");
-	private  JButton loadButton = new JButton("Load");
-	private  JButton optionsButton = new JButton("Options");
-	private  JTextField scoreBox = new JTextField();// displays the score
-	private  JTextField timeBox = new JTextField();// displays the time
-	private  JTextField statusBox = new JTextField();// status messages
-
-	// TIMER UTILITIES
-	private Timer timer;
-	private ScoreClock scoreClock;
 
 	// GAMEPLAY STRUCTURES
 	private static FlowerBedFinalStack[] final_cards;// Foundation Stacks
@@ -119,25 +104,17 @@ public class FlowerBed extends GameMode
 				+ "the screen. ";
 	}
 
-	// moves a card to abs location within a component
-	protected static Card moveCard(Card c, int x, int y)
-	{
-		c.setBounds(new Rectangle(new Point(x, y), new Dimension(Card.CARD_WIDTH + 10, Card.CARD_HEIGHT + 10)));
-        c.setXY(new Point(x, y));
-		return c;
-	}
+	
 
 	// add/subtract points based on gameplay actions
 	protected void setScore(int deltaScore)
 	{
 		score += deltaScore;
 		String newScore = "Score: " + score;
-		scoreBox.setText(newScore);
-		scoreBox.repaint();
 	}
 
 	// GAME TIMER UTILITIES
-	protected void updateTimer()
+	public void updateTimer()
 	{
 		time += 1;
 		// every 10 seconds elapsed we take away 2 points
@@ -146,64 +123,14 @@ public class FlowerBed extends GameMode
 			setScore(-2);
 		}
 		String text = "Seconds: " + time;
-		timeBox.setText(text);
-		timeBox.repaint();
-	}
-
-	protected void startTimer()
-	{
-		scoreClock = new ScoreClock();
-		timer = new Timer();
-		// set the timer to update every second
-		timer.scheduleAtFixedRate(scoreClock, 1000, 1000);
-		timeRunning = true;
-	}
-
-	// the pause timer button uses this
-	public void toggleTimer()
-	{
-		if (timeRunning && scoreClock != null)
-		{
-			scoreClock.cancel();
-			timeRunning = false;
-		} else
-		{
-			startTimer();
-		}
-	}
-
-	private class ScoreClock extends TimerTask
-	{
-		@Override
-		public void run()
-		{
-			updateTimer();
-		}
 	}
 
 	// BUTTON LISTENERS
 
 	public void startMenu() { 
-		scoreClock.cancel();
 		score = 0;
 		time = 0;
 		mainMenu.returnToMenu();
-	}
-
-	private class ToggleTimerListener implements ActionListener
-	{
-		@Override
-		public void actionPerformed(ActionEvent e)
-		{
-			toggleTimer();
-			if (!timeRunning)
-			{
-				toggleTimerButton.setText("Start Timer");
-			} else
-			{
-				toggleTimerButton.setText("Pause Timer");
-			}
-		}
 	}
 
 	public void saveGame() {
@@ -305,11 +232,11 @@ public class FlowerBed extends GameMode
 		score = Integer.parseInt(stacks.get(NUM_PLAY_DECKS + NUM_FINAL_DECKS + 1));
 		time = Integer.parseInt(stacks.get(NUM_PLAY_DECKS + NUM_FINAL_DECKS + 2));
 		
-		scoreBox.setText("Score: " + score);
+		/*scoreBox.setText("Score: " + score);
 		scoreBox.repaint();
 
 		timeBox.setText("Seconds: " + time);
-		timeBox.repaint();
+		timeBox.repaint();*/
 	}
 
 	/*public String getRules() {
@@ -406,7 +333,7 @@ public class FlowerBed extends GameMode
 		System.out.println("mouse");
 		start = e.getPoint();
 		boolean stopSearch = false;
-		statusBox.setText("");
+		//statusBox.setText("");
 		transferStack.makeEmpty();
 
 		/*
@@ -696,7 +623,7 @@ public class FlowerBed extends GameMode
 		// SHOWING STATUS MESSAGE IF MOVE INVALID
 		if (!validMoveMade && dest != null && card != null)
 		{
-			statusBox.setText("That Is Not A Valid Move");
+			//statusBox.setText("That Is Not A Valid Move");
 		} else if(validMoveMade) {
 			playSound();
 		}
@@ -723,7 +650,7 @@ public class FlowerBed extends GameMode
 		{
 			updateScores();
 			JOptionPane.showMessageDialog(table, "Congratulations! You've Won!");
-			statusBox.setText("Game Over!");
+			//statusBox.setText("Game Over!");
 		}
 		// RESET VARIABLES FOR NEXT EVENT
 		start = null;
@@ -808,8 +735,8 @@ public class FlowerBed extends GameMode
 		// reset time
 		time = 0;
 
-		scoreBox.setText("Score: 0");
-		timeBox.setText("Seconds: 0");
+		//scoreBox.setText("Score: 0");
+		//timeBox.setText("Seconds: 0");
 		
 		/*table.add(statusBox);
 		table.add(toggleTimerButton);
@@ -844,7 +771,7 @@ public class FlowerBed extends GameMode
         
         playNewGame();
 		//addButtons();
-		startTimer();
+		//startTimer();
 
 
 		/*table.addMouseListener(new CardMovementManager());

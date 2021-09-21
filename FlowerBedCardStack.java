@@ -1,3 +1,4 @@
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -183,6 +184,14 @@ class FlowerBedCardStack extends JComponent
 		return new Point(_x, _y);
 	}
 
+	// moves a card to abs location within a component
+	protected Card moveCard(Card c, int x, int y)
+	{
+		c.setBounds(new Rectangle(new Point(x, y), new Dimension(Card.CARD_WIDTH + 10, Card.CARD_HEIGHT + 10)));
+        c.setXY(new Point(x, y));
+		return c;
+	}
+
 	@Override
 	protected void paintComponent(Graphics g)
 	{
@@ -191,33 +200,18 @@ class FlowerBedCardStack extends JComponent
 		if (playStack)
 		{
 			removeAll();
-			ListIterator<Card> iter = v.listIterator();
 			Point prev = new Point(); // positioning relative to the container
 			Point prevWhereAmI = new Point();// abs positioning on the board
-                        
-            for (int x = 0; x < v.size(); x++)
+			for (int x = 0; x < v.size(); x++)
             {
-                Card c = v.get(x);
-                            
-				// this origin is point(0,0) inside the cardstack container
-				prev = new Point(0, (SPREAD * v.size()));// c.getXY(); // starting deck pos
-				add(FlowerBed.moveCard(c, prev.x, prev.y ));
-				// setting x & y position
-                Point p = getXY();
-				c.setWhereAmI(new Point(p.x, p.y+ (SPREAD * v.size())));
+				Card c = v.get(x);
+				prev = new Point(0, (SPREAD * (v.size() - x)));
+				add(moveCard(c, prev.x, prev.y ));
+
+				Point p = getXY();
+				c.setWhereAmI(new Point(p.x, p.y+ (SPREAD * (v.size() - x))));
 				prevWhereAmI = c.getWhereAmI();
-            }
-                        
-            for (int x = 0; x < v.size(); x++)
-            {
-                Card c = v.get(x);
-                c.setXY(new Point(prev.x, prev.y - SPREAD));
-				add(FlowerBed.moveCard(c, prev.x, prev.y - SPREAD));
-				prev = c.getXY();
-				// setting x & y position
-				c.setWhereAmI(new Point(prevWhereAmI.x, prevWhereAmI.y - SPREAD));
-				prevWhereAmI = c.getWhereAmI();
-            }
+			}
 
 		} else {
             removeAll();
@@ -231,7 +225,7 @@ class FlowerBedCardStack extends JComponent
                             
 				// this origin is point(0,0) inside the cardstack container
 				prev = new Point(+ ((SPREAD * 3) * v.size()), 0);// c.getXY(); // starting deck pos
-				add(FlowerBed.moveCard(c, prev.x, prev.y ));
+				add(moveCard(c, prev.x, prev.y ));
 				// setting x & y position
                 Point p = getXY();
 				c.setWhereAmI(new Point(p.x+ ((SPREAD * 3) * v.size()), p.y));
@@ -242,7 +236,7 @@ class FlowerBedCardStack extends JComponent
             {
                 Card c = v.get(x);
                 c.setXY(new Point(prev.x- (SPREAD * 3), prev.y ));
-				add(FlowerBed.moveCard(c, prev.x- (SPREAD * 3), prev.y));
+				add(moveCard(c, prev.x- (SPREAD * 3), prev.y));
 				prev = c.getXY();
 				// setting x & y position
 				c.setWhereAmI(new Point(prevWhereAmI.x- (SPREAD * 3), prevWhereAmI.y));

@@ -1,4 +1,5 @@
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -31,6 +32,7 @@ class FlowerBedFinalStack extends FlowerBedCardStack
 		return (rect.contains(p));
 	}
 
+
 	/*
 	 * We draw this stack one card on top of the other
 	 */
@@ -40,7 +42,7 @@ class FlowerBedFinalStack extends FlowerBedCardStack
 		removeAll();
 		if (!empty())
 		{
-			add(FlowerBed.moveCard(this.getLast(), 1, 1));
+			add(moveCard(this.getLast(), 1, 1));
 		} else
 		{
 			// draw back of card if empty

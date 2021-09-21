@@ -48,6 +48,7 @@ public class MenuButtons {
 	private  JTextField statusBox = new JTextField();// status messages
 
 	private ScoreClock scoreClock;
+	private boolean timeRunning = false;
 
     public MenuButtons(JPanel myTable, JFrame myFrame) {
         table = myTable;
@@ -104,20 +105,21 @@ public class MenuButtons {
 		@Override
 		public void actionPerformed(ActionEvent e)
 		{
-            if (!currentGameMode.timeRunning)
+            if (!timeRunning)
 			{
 				toggleTimerButton.setText("Start Timer");
 			} else
 			{
 				toggleTimerButton.setText("Pause Timer");
 			}
-			currentGameMode.toggleTimer();
+			toggleTimer();
 		}
 	}
 
 	protected void updateTimer()
 	{
 		try {
+			currentGameMode.updateTimer();
 			String text = "Seconds: " + currentGameMode.time;
 			String newScore = "Score: " + currentGameMode.score;
 			scoreBox.setText(newScore);
@@ -135,7 +137,19 @@ public class MenuButtons {
 		
 		// set the timer to update every second
 		Timer timer = new Timer();
-		timer.scheduleAtFixedRate(scoreClock, 0, 500);
+		timer.scheduleAtFixedRate(scoreClock, 1000, 1000);
+	}
+
+	public void toggleTimer()
+	{
+		if (timeRunning && scoreClock != null)
+		{
+			scoreClock.cancel();
+			timeRunning = false;
+		} else
+		{
+			startTimer();
+		}
 	}
 
 	public void stopTimer()
@@ -285,6 +299,9 @@ public class MenuButtons {
 		{
 			if(currentGameMode != null) {
 				currentGameMode.mouseReleased(e);
+				String newScore = "Score: " + currentGameMode.score;
+				scoreBox.setText(newScore);
+				scoreBox.repaint();
 			}
 		}
 

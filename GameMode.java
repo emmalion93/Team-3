@@ -14,7 +14,6 @@ public class GameMode {
 	protected String gameDesc;
     protected String gameRules = "No Rules Provided"; 
     protected StartMenu mainMenu;
-    protected static boolean timeRunning = false;
     protected int time;
     protected int score;
     public static String cardPath = "CardImages\\original\\";
@@ -26,14 +25,20 @@ public class GameMode {
     public void execute(JPanel myTable, JFrame myFrame, StartMenu myMenu, String myCardPath) { }
 
     public void playNewGame() { }
-    public void startMenu() { }
     public void saveGame() { }
     public void loadGame() { }
-    public void toggleTimer() { }
+    public void undo() { }
+    public void redo() { }
+    public void updateTimer() { }
     public void mousePressed(MouseEvent e) { }
     public void mouseReleased(MouseEvent e) { }
     public void mouseMoved(MouseEvent e) { }
 
+    public void startMenu() {
+		score = 0;
+		time = 0;
+		mainMenu.returnToMenu();
+     }
     public void updateScores() {
         mainMenu.updateScores(gameName, score, time);
     }

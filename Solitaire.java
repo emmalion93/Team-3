@@ -52,14 +52,7 @@ public class Solitaire extends GameMode
 	private static JTextField statusBox = new JTextField();// status messages
 	private static final Card newCardButton = new Card();// reveal waste card
 
-	// TIMER UTILITIES
-	private static Timer timer = new Timer();
-	private static ScoreClock scoreClock = new ScoreClock();
 
-	// MISC TRACKING VARIABLES
-	private static boolean timeRunning = false;// timer running?
-	private static int score = 0;// keep track of the score
-	private static int time = 0;// keep track of seconds elapsed
 
 	// MOUSE CONTROL
 	private Card prevCard = null;// tracking card for waste stack
@@ -85,7 +78,6 @@ public class Solitaire extends GameMode
 	}
 
 	public void startMenu() { 
-		scoreClock.cancel();
 		score = 0;
 		time = 0;
 		mainMenu.returnToMenu();
@@ -102,58 +94,29 @@ public class Solitaire extends GameMode
 	}
 
 	// add/subtract points based on gameplay actions
-	protected static void setScore(int deltaScore)
+	protected void setScore(int deltaScore)
 	{
-		Solitaire.score += deltaScore;
-		String newScore = "Score: " + Solitaire.score;
+		score += deltaScore;
+		String newScore = "Score: " + score;
 		scoreBox.setText(newScore);
 		scoreBox.repaint();
 	}
 
 	// GAME TIMER UTILITIES
-	protected static void updateTimer()
+	public  void updateTimer()
 	{
-		Solitaire.time += 1;
+		time += 1;
 		// every 10 seconds elapsed we take away 2 points
-		if (Solitaire.time % 10 == 0)
+		if (time % 10 == 0)
 		{
 			setScore(-2);
 		}
-		String time = "Seconds: " + Solitaire.time;
-		timeBox.setText(time);
+		String timeString = "Seconds: " + time;
+		timeBox.setText(timeString);
 		timeBox.repaint();
 	}
 
-	protected static void startTimer()
-	{
-		scoreClock = new ScoreClock();
-		// set the timer to update every second
-		timer.scheduleAtFixedRate(scoreClock, 1000, 1000);
-		timeRunning = true;
-	}
-
-	// the pause timer button uses this
-	public void toggleTimer()
-	{
-		if (timeRunning && scoreClock != null)
-		{
-			scoreClock.cancel();
-			timeRunning = false;
-		} else
-		{
-			startTimer();
-		}
-	}
-
-	private static class ScoreClock extends TimerTask
-	{
-		@Override
-		public void run()
-		{
-			updateTimer();
-		}
-	}
-
+	
 	private boolean validPlayStackMove(Card source, Card dest)
 	{
 		int s_val = source.getValue().ordinal();
@@ -262,7 +225,7 @@ public class Solitaire extends GameMode
 			if (prevCard != null)
 				table.remove(prevCard);
 			Card c = deck.pop().setFaceup();
-			table.add(Solitaire.moveCard(c, SHOW_POS.x, SHOW_POS.y));
+			table.add(moveCard(c, SHOW_POS.x, SHOW_POS.y));
 			c.repaint();
 			table.repaint();
 			prevCard = c;
@@ -670,7 +633,6 @@ public class Solitaire extends GameMode
 		mainMenu = myMenu;
 		cardPath = myCardPath;
 
-
 		frame.setSize(TABLE_WIDTH, TABLE_HEIGHT);
 
 		table.setLayout(null);
@@ -681,7 +643,7 @@ public class Solitaire extends GameMode
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
         playNewGame();
-		startTimer();
+		//startTimer();
 
 		frame.setVisible(true);
 	}
