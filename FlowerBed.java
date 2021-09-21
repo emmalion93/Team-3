@@ -128,6 +128,7 @@ public class FlowerBed extends GameMode
 	// BUTTON LISTENERS
 
 	public void startMenu() { 
+		updateScores();
 		score = 0;
 		time = 0;
 		mainMenu.returnToMenu();
@@ -648,7 +649,7 @@ public class FlowerBed extends GameMode
 
 		if (checkForWin && gameOver)
 		{
-			updateScores();
+			mainMenu.updateScores(gameName, score, time, true);
 			JOptionPane.showMessageDialog(table, "Congratulations! You've Won!");
 			//statusBox.setText("Game Over!");
 		}
@@ -663,7 +664,12 @@ public class FlowerBed extends GameMode
 		gameOver = false;
 	}// end mousePressed()
 
-	public void playNewGame()
+	public void newGame() {
+		updateScores();
+		playNewGame();
+	}
+
+	private void playNewGame()
 	{
 		score = 0;
 		time = 0;

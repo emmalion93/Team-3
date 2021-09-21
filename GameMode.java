@@ -24,7 +24,7 @@ public class GameMode {
 
     public void execute(JPanel myTable, JFrame myFrame, StartMenu myMenu, String myCardPath) { }
 
-    public void playNewGame() { }
+    public void newGame() { }
     public void saveGame() { }
     public void loadGame() { }
     public void undo() { }
@@ -35,12 +35,13 @@ public class GameMode {
     public void mouseMoved(MouseEvent e) { }
 
     public void startMenu() {
+        updateScores();
 		score = 0;
 		time = 0;
 		mainMenu.returnToMenu();
      }
     public void updateScores() {
-        mainMenu.updateScores(gameName, score, time);
+        mainMenu.updateScores(gameName, score, time, false);
     }
 
     protected void playSound() {

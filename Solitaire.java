@@ -78,6 +78,7 @@ public class Solitaire extends GameMode
 	}
 
 	public void startMenu() { 
+		updateScores();
 		score = 0;
 		time = 0;
 		mainMenu.returnToMenu();
@@ -555,6 +556,7 @@ public class Solitaire extends GameMode
 
 		if (checkForWin && gameOver)
 		{
+			mainMenu.updateScores(gameName, score, time, true);
 			JOptionPane.showMessageDialog(table, "Congratulations! You've Won!");
 			statusBox.setText("Game Over!");
 		}
@@ -569,7 +571,12 @@ public class Solitaire extends GameMode
 		gameOver = false;
 	}// end mousePressed()
 
-	public void playNewGame()
+	public void newGame() {
+		mainMenu.updateScores(gameName, score, time, false);
+		playNewGame();
+	}
+
+	private void playNewGame()
 	{
 		deck = new CardStack(true); // deal 52 cards
 		deck.shuffle();

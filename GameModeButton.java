@@ -29,6 +29,7 @@ public class GameModeButton {
     private JFrame frame;
     private JButton gameButton;
     private JTextPane highScoreBox;
+	private JTextPane totalGamesBox;
     private JCheckBox checkBox;
     private JButton gameinformationButton;
     private int x_pos;
@@ -48,12 +49,17 @@ public class GameModeButton {
         gameButton.setName(name);
         gameButton.addActionListener(new ChooseGameListener());
 
-        String[] highScores = getGameInformation(name).split(",");
         highScoreBox = new JTextPane();
-        highScoreBox.setText("Score: " + highScores[0] + "\n Time: " + highScores[1]);
         highScoreBox.setEditable(false);
 		highScoreBox.setBackground(Color.GREEN);
 		highScoreBox.setFont(new Font("Arial", Font.PLAIN, 12));
+
+		totalGamesBox = new JTextPane();
+        totalGamesBox.setEditable(false);
+		totalGamesBox.setBackground(Color.GREEN);
+		totalGamesBox.setFont(new Font("Arial", Font.PLAIN, 12));
+
+		refreshScores();
 
         checkBox= new JCheckBox();
         checkBox.addActionListener(new CheckFavoritesListener());
@@ -76,10 +82,12 @@ public class GameModeButton {
         gameButton.setBounds(x_pos, my_y_pos, 120, 60);
 
         highScoreBox.setBounds(x_pos + 21, my_y_pos + 60, 80, 30);
+
+		totalGamesBox.setBounds(x_pos + 120, my_y_pos, 100, 90);
         
         checkBox.setBounds(x_pos + 1, my_y_pos + 60, 20, 30);
 
-        gameinformationButton.setBounds(x_pos + 100, my_y_pos + 60, 20, 30);
+        gameinformationButton.setBounds(x_pos + 100, my_y_pos+ 60, 20, 30);
         addButtons();
     }
 
@@ -87,6 +95,7 @@ public class GameModeButton {
 		table.add(checkBox);
         table.add(gameButton);
         table.add(highScoreBox);
+		table.add(totalGamesBox);
         table.add(gameinformationButton);
     }
 
@@ -174,6 +183,17 @@ public class GameModeButton {
 		}
 
 		return highScores;
+	}
+
+	public void refreshScores() {
+		String[] highScores = getGameInformation(name).split(",");
+        highScoreBox.setText("Score: " + highScores[0] + "\n Time: " + highScores[1]);
+
+		int percentage = 0;
+		if(!highScores[2].equals("0")) {
+			 percentage = (int)((float)(Integer.parseInt(highScores[3]) / (float)Integer.parseInt(highScores[2]) * 100));
+		}
+        totalGamesBox.setText("Games: " + highScores[2] + "\nWins: " + highScores[3] + "\n% Wins: " + percentage + "%"+ "\nLast Score: " + highScores[4] + "\nLast Time: " + highScores[5]);
 	}
 
 	private void updateFavoriteInformation() {

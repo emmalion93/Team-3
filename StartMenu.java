@@ -74,6 +74,7 @@ public class StartMenu {
 			if(gameModeButtons.get(x).getFavorite()) {
 				int height = 90 + 90 * count;
 				gameModeButtons.get(x).setPosition(20, height);
+				gameModeButtons.get(x).refreshScores();
 				count++;
 			}
 		}
@@ -137,7 +138,7 @@ public class StartMenu {
 		table.repaint();
 	}
 
-	public void updateScores(String gameName, int score, int time) {
+	public void updateScores(String gameName, int score, int time, boolean win) {
 		BufferedReader reader;
 		List<String> lines = new ArrayList<String>();
 
@@ -156,20 +157,30 @@ public class StartMenu {
 		{
 			List<String> games = Arrays.asList(lines.get(x).split(":"));
 			if(gameName.equals(games.get(0))) {
-				List<String> highScores = Arrays.asList(games.get(1).split(","));
-				if(score > Integer.parseInt(highScores.get(0))) {
-					highScores.set(0, "" + score);
+				List<String> highScores = Arrays.asList(games.get(2).split(","));
+				String favorited = games.get(1);
+				int gameNumber = Integer.parseInt(highScores.get(2)) + 1;
+				int winNumber = Integer.parseInt(highScores.get(3));
+				if(win) {
+					if(score > Integer.parseInt(highScores.get(0))) {
+						highScores.set(0, "" + score);
+					}
+					if(time < Integer.parseInt(highScores.get(1))) {
+						highScores.set(1, "" + time);
+					}
+					winNumber += 1;
 				}
-				if(time < Integer.parseInt(highScores.get(1))) {
-					highScores.set(1, "" + time);
-				}
-				lines.set(x, games.get(0) + ":" + highScores.get(0) + "," + highScores.get(1));
+				lines.set(x, games.get(0) + ":" + favorited + ":" + highScores.get(0) + "," + highScores.get(1) + "," + gameNumber + "," + winNumber + "," + score + "," + time);
 				found = true;
 				break;
 			}
 		}
 		if(!found) {
-			lines.add(gameName + ":" + score + "," + time);
+			if(win) {
+				lines.add(gameName + ":" + "1:" + score + "," + time + ",1,1," + score + "," + time);
+			} else {
+				lines.add(gameName + ":" + "1:" + score + "," + time + ",1,0," + score + "," + time);
+			}
 		}
 
 		try {

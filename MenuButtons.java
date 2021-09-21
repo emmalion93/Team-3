@@ -68,7 +68,7 @@ public class MenuButtons {
 		{
             table.removeAll();
             addButtons();
-			currentGameMode.playNewGame();
+			currentGameMode.newGame();
 		}
 
 	}
