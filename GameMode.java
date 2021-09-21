@@ -16,7 +16,7 @@ public class GameMode {
     protected StartMenu mainMenu;
     protected int time;
     protected int score;
-    public static String cardPath = "CardImages\\original\\";
+    public static String cardPath = "CardImages\\greywyvern-cardset\\";
 
     public String getName() { return gameName; }
 	public String getDesc() { return gameDesc; }
