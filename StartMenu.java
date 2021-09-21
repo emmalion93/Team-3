@@ -237,7 +237,7 @@ public class StartMenu {
 		menuButtons.enableAllButtons();
 		menuButtons.setGameMode(gameMode);
 		menuButtons.startTimer();
-		gameMode.execute(table ,frame, this, "CardImages\\greywyvern-cardset\\");
+		gameMode.execute(table ,frame, this, GameMode.cardPath);
 	}
 
 	public static void execute() {
