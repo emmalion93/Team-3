@@ -1,14 +1,10 @@
 // created by team 3
-import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.Image;
-import java.awt.image.*;
 import java.io.File;
 import java.io.IOException;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.geom.RoundRectangle2D;
 
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
@@ -45,7 +41,6 @@ class Card extends JPanel
 
 	public static final int CORNER_ANGLE = 25;
 
-	private String imageFile = "CardImages\\original\\";
 	private String imageInfo;
 	private Image myImage;
 
@@ -86,21 +81,6 @@ class Card extends JPanel
 			e.printStackTrace();
 		}
 	}
-
-	/*public void setImage(String myPath) {
-		imageFile = myPath;
-		imageInfo = getImageInfo();
-		try {
-			if(_faceup) {
-				myImage = getImage();
-			} else {
-				myImage = getFaceDownImage();
-			}
-		} catch (IOException e) {
-			System.out.println("opps");
-			//e.printStackTrace();
-		}
-	}*/
 
 	public Suit getSuit()
 	{
@@ -331,7 +311,6 @@ class Card extends JPanel
 	@Override
 	public void paintComponent(Graphics g)
 	{
-		Graphics2D g2d = (Graphics2D) g;
 		if(myImage != null) {
 			g.drawImage(myImage, _location.x, _location.y, null);
 		}
