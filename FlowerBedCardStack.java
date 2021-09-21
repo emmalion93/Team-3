@@ -2,7 +2,6 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.util.ListIterator;
 import java.util.Vector;
 
 import javax.swing.JComponent;
@@ -22,7 +21,6 @@ class FlowerBedCardStack extends JComponent
 
 	public FlowerBedCardStack(boolean isDeck)
 	{
-		int f = 1;
 		this.setLayout(null);
 		v = new Vector<Card>();
 		if (isDeck)
@@ -124,7 +122,7 @@ class FlowerBedCardStack extends JComponent
 		return v.size();
 	}
 
-	public Vector getStack() 
+	public Vector<Card> getStack() 
     {
         return v;
     }
@@ -200,7 +198,6 @@ class FlowerBedCardStack extends JComponent
 		{
 			removeAll();
 			Point prev = new Point(); // positioning relative to the container
-			Point prevWhereAmI = new Point();// abs positioning on the board
 			for (int x = 0; x < v.size(); x++)
             {
 				Card c = v.get(x);
@@ -209,12 +206,11 @@ class FlowerBedCardStack extends JComponent
 
 				Point p = getXY();
 				c.setWhereAmI(new Point(p.x, p.y+ (SPREAD * (v.size() - x))));
-				prevWhereAmI = c.getWhereAmI();
 			}
 
 		} else {
             removeAll();
-			ListIterator<Card> iter = v.listIterator();
+			//ListIterator<Card> iter = v.listIterator();
 			Point prev = new Point(); // positioning relative to the container
 			Point prevWhereAmI = new Point();// abs positioning on the board
                         

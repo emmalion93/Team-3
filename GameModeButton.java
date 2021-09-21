@@ -79,15 +79,15 @@ public class GameModeButton {
         x_pos = my_x_pos;
         y_pos = my_y_pos;
 
-        gameButton.setBounds(x_pos, my_y_pos, 120, 60);
+        gameButton.setBounds(x_pos, y_pos, 120, 60);
 
-        highScoreBox.setBounds(x_pos + 21, my_y_pos + 60, 80, 30);
+        highScoreBox.setBounds(x_pos + 21, y_pos + 60, 80, 30);
 
-		totalGamesBox.setBounds(x_pos + 120, my_y_pos, 100, 90);
+		totalGamesBox.setBounds(x_pos + 120, y_pos, 100, 90);
         
-        checkBox.setBounds(x_pos + 1, my_y_pos + 60, 20, 30);
+        checkBox.setBounds(x_pos + 1, y_pos + 60, 20, 30);
 
-        gameinformationButton.setBounds(x_pos + 100, my_y_pos+ 60, 20, 30);
+        gameinformationButton.setBounds(x_pos + 100, y_pos+ 60, 20, 30);
         addButtons();
     }
 
@@ -117,12 +117,11 @@ public class GameModeButton {
 		@Override
 		public void actionPerformed(ActionEvent e)
 		{
-			JButton button = (JButton) e.getSource();
+			//JButton button = (JButton) e.getSource();
 
 			JDialog ruleFrame = new JDialog(frame, true);
 			ruleFrame.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 			ruleFrame.setSize(400, 100);
-			JScrollPane scroll;
 			JEditorPane rulesTextPane = new JEditorPane("text/html", "");
 			rulesTextPane.setEditable(false);
 			String rulesText;
@@ -131,7 +130,8 @@ public class GameModeButton {
 				rulesText = gameMode.getDesc();
 
 			rulesTextPane.setText(rulesText);
-			ruleFrame.add(scroll = new JScrollPane(rulesTextPane));
+			JScrollPane scroll = new JScrollPane(rulesTextPane);
+			ruleFrame.add(scroll);
 
 			ruleFrame.setVisible(true);
 

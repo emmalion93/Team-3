@@ -5,20 +5,11 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.Timer;
-import java.util.TimerTask;
 
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 
 public class Solitaire extends GameMode
@@ -43,10 +34,6 @@ public class Solitaire extends GameMode
 	private static JFrame frame = new JFrame("Klondike Solitaire");
 	protected static JPanel table = new JPanel();
 	// other components
-	private static JEditorPane gameTitle = new JEditorPane("text/html", "");
-	private static JButton showRulesButton = new JButton("Show Rules");
-	private static JButton newGameButton = new JButton("New Game");
-	private static JButton toggleTimerButton = new JButton("Pause Timer");
 	private static JTextField scoreBox = new JTextField();// displays the score
 	private static JTextField timeBox = new JTextField();// displays the time
 	private static JTextField statusBox = new JTextField();// status messages
@@ -617,7 +604,6 @@ public class Solitaire extends GameMode
 		// Dealing new game
 		for (int x = 0; x < NUM_PLAY_DECKS; x++)
 		{
-			int hld = 0;
 			Card c = deck.pop().setFaceup();
 			playCardStack[x].putFirst(c);
 

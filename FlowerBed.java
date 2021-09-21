@@ -1,33 +1,14 @@
 // created by team-3
-import java.awt.Color;
 import java.awt.Container;
-import java.awt.Dimension;
 import java.awt.Point;
-import java.awt.Rectangle;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.Vector;
 
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JEditorPane;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextField;
-
 
 public class FlowerBed extends GameMode
 {
@@ -36,19 +17,14 @@ public class FlowerBed extends GameMode
 	public static final int TABLE_WIDTH = (Card.CARD_WIDTH * 12) + 100;
 	public static final int NUM_FINAL_DECKS = 4;
 	public static final int NUM_PLAY_DECKS = 7;
-    //public static final Point DECK_POS = new Point(5, 350);
-    //public static final Point SHOW_POS = new Point(DECK_POS.x + Card.CARD_WIDTH + 5, 5);
-	//public static final Point FINAL_POS = new Point(SHOW_POS.x + Card.CARD_WIDTH + 650, 5);
 	public static final Point DECK_POS = new Point(5, 500);
 	public static final Point SHOW_POS = new Point(DECK_POS.x + Card.CARD_WIDTH + 5, 5);
 	public static final Point FINAL_POS = new Point(SHOW_POS.x + Card.CARD_WIDTH + 650, 35);
     public static final Point PLAY_POS = new Point(5, 35);
 
 	// GUI COMPONENTS (top level)
-	//private static final JFrame frame = new JFrame("Klondike Solitaire");
-	//protected static final JPanel table = new JPanel();
 	private JFrame frame;
-	protected JPanel table = new JPanel();
+	protected JPanel table;
 	// other components
 
 	// GAMEPLAY STRUCTURES
@@ -110,7 +86,7 @@ public class FlowerBed extends GameMode
 	protected void setScore(int deltaScore)
 	{
 		score += deltaScore;
-		String newScore = "Score: " + score;
+		//String newScore = "Score: " + score;
 	}
 
 	// GAME TIMER UTILITIES
@@ -122,7 +98,7 @@ public class FlowerBed extends GameMode
 		{
 			setScore(-2);
 		}
-		String text = "Seconds: " + time;
+		//String text = "Seconds: " + time;
 	}
 
 	// BUTTON LISTENERS
@@ -138,7 +114,7 @@ public class FlowerBed extends GameMode
 		String cardList = "";
 		for (int x = 0; x < NUM_PLAY_DECKS; x++)
 		{
-			Vector stack = playCardStack[x].getStack();
+			Vector<Card> stack = playCardStack[x].getStack();
 
 			for (int y = 0; y < stack.size(); y++)
 			{
@@ -152,7 +128,7 @@ public class FlowerBed extends GameMode
 		}
 		for (int x = 0; x < NUM_FINAL_DECKS; x++)
 		{
-			Vector stack = final_cards[x].getStack();
+			Vector<Card> stack = final_cards[x].getStack();
 
 			for (int y = 0; y < stack.size(); y++)
 			{
@@ -164,7 +140,7 @@ public class FlowerBed extends GameMode
 			}
 			cardList = cardList + "\n";
 		}
-		Vector stack = deck.reverse().getStack();
+		Vector<Card> stack = deck.reverse().getStack();
 
 		for (int y = 0; y < stack.size(); y++)
 		{
@@ -236,8 +212,8 @@ public class FlowerBed extends GameMode
 	{
 		int s_val = source.getValue().ordinal();
 		int d_val = dest.getValue().ordinal();
-		Card.Suit s_suit = source.getSuit();
-		Card.Suit d_suit = dest.getSuit();
+		//Card.Suit s_suit = source.getSuit();
+		//Card.Suit d_suit = dest.getSuit();
 
 		// destination card should be one higher value
 		if ((s_val + 1) == d_val)
@@ -263,7 +239,7 @@ public class FlowerBed extends GameMode
 			return false;
 	}
 
-	public Card getTop(Vector stack, Point p) {
+	public Card getTop(Vector<Card> stack, Point p) {
 		Card c = null;
 		for (int x = stack.size() - 1; x >= 0; x--)
 		{
@@ -310,7 +286,7 @@ public class FlowerBed extends GameMode
 		if(card == null) {
 			source = deck;
 			// pinpointing exact card pressed
-			Vector stack = source.getStack();
+			Vector<Card> stack = source.getStack();
 			for (int x = 0; x < source.showSize(); x++)
 			{
 				transferStack.makeEmpty();
@@ -368,6 +344,9 @@ public class FlowerBed extends GameMode
 					table.repaint();
 					movedCard = null;
 					putBackOnDeck = false;
+					if(putBackOnDeck) { 
+						//TODO Remove this 
+					}
 					setScore(5);
 					System.out.println("-3");
 					validMoveMade = true;
@@ -662,7 +641,6 @@ public class FlowerBed extends GameMode
 		// Dealing new game
 		for (int x = 0; x < NUM_PLAY_DECKS; x++)
 		{
-			int hld = 0;
 			Card c = deck.pop().setFaceup();
 			//c.setImage(cardPath);
 			playCardStack[x].putFirst(c);
@@ -679,7 +657,7 @@ public class FlowerBed extends GameMode
         deck.setXY(DECK_POS.x, DECK_POS.y);
         table.add(deck);
 
-		Vector stack = deck.getStack();
+		Vector<Card> stack = deck.getStack();
         for (int x = 0; x < deck.showSize(); x++)
 		{
             Card c = (Card) stack.get(x);

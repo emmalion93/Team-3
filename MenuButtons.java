@@ -181,12 +181,12 @@ public class MenuButtons {
 			JDialog ruleFrame = new JDialog(frame, true);
 			ruleFrame.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 			ruleFrame.setSize(FlowerBed.TABLE_HEIGHT, FlowerBed.TABLE_WIDTH);
-			JScrollPane scroll;
 			JEditorPane rulesTextPane = new JEditorPane("text/html", "");
 			rulesTextPane.setEditable(false);
 			String rulesText = currentGameMode.getRules();
 			rulesTextPane.setText(rulesText);
-			ruleFrame.add(scroll = new JScrollPane(rulesTextPane));
+			JScrollPane scroll = new JScrollPane(rulesTextPane);
+			ruleFrame.add(scroll);
 
 			ruleFrame.setVisible(true);
 		}
@@ -203,13 +203,13 @@ public class MenuButtons {
 		private JButton confirmButton = new JButton("Confirm");
 		private JEditorPane dropDownText = new JEditorPane();
 		private String[] dropDownOptions = { "Top", "Bottom" };
-		private JComboBox dropDown = new JComboBox(dropDownOptions);
+		private JComboBox<String> dropDown = new JComboBox<String>(dropDownOptions);
 		private JEditorPane cardDropText = new JEditorPane();
 		private String[] cardDropDownOptions = { "Ocean", "Original" };// "CardImages\\greywyvern-cardset\\", "CardImages\\original\\"
-		private JComboBox cardDropDown = new JComboBox(cardDropDownOptions);
+		private JComboBox<String> cardDropDown = new JComboBox<String>(cardDropDownOptions);
 		private JEditorPane backgroundDropText = new JEditorPane();
 		private String[] backgroundDropDownOptions = { "Green", "White" };
-		private JComboBox backgroundDropDown = new JComboBox(backgroundDropDownOptions);
+		private JComboBox<String> backgroundDropDown = new JComboBox<String>(backgroundDropDownOptions);
 
 		@Override
 		public void actionPerformed(ActionEvent e)
