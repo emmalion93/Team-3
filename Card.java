@@ -236,7 +236,7 @@ class Card extends JPanel
 	}
 
 	private String getImageInfo() {
-		String s = GameMode.cardPath;// imageFile;
+		String s = "";// imageFile;
 		switch (_value)
 			{
 			case ACE:
@@ -297,8 +297,27 @@ class Card extends JPanel
 		return s + ".png";
 	}
 
+	public void refreshImage() {
+		imageInfo = getImageInfo();
+		if(_faceup) {
+			try {
+				myImage = getImage();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		} else {
+			try {
+				myImage = getFaceDownImage();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+
 	private Image getImage() throws IOException {
-		Image myCard = ImageIO.read(new File(imageInfo));
+		Image myCard = ImageIO.read(new File(GameMode.cardPath + imageInfo));
 		myCard = myCard.getScaledInstance(CARD_WIDTH, CARD_HEIGHT, Image.SCALE_SMOOTH);
 		return myCard;
 	}

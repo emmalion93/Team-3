@@ -1,5 +1,6 @@
 import javax.sound.sampled.FloatControl;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JEditorPane;
 import javax.swing.JFrame;
@@ -10,7 +11,7 @@ import javax.swing.JTextField;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-
+import java.awt.Color;
 import java.awt.Container;
 import java.awt.Font;
 
@@ -200,6 +201,15 @@ public class MenuButtons {
 		private JEditorPane volumeText = new JEditorPane();
 		private JEditorPane musicVolumeText = new JEditorPane();
 		private JButton confirmButton = new JButton("Confirm");
+		private JEditorPane dropDownText = new JEditorPane();
+		private String[] dropDownOptions = { "Top", "Bottom" };
+		private JComboBox dropDown = new JComboBox(dropDownOptions);
+		private JEditorPane cardDropText = new JEditorPane();
+		private String[] cardDropDownOptions = { "Ocean", "Original" };// "CardImages\\greywyvern-cardset\\", "CardImages\\original\\"
+		private JComboBox cardDropDown = new JComboBox(cardDropDownOptions);
+		private JEditorPane backgroundDropText = new JEditorPane();
+		private String[] backgroundDropDownOptions = { "Green", "White" };
+		private JComboBox backgroundDropDown = new JComboBox(backgroundDropDownOptions);
 
 		@Override
 		public void actionPerformed(ActionEvent e)
@@ -243,6 +253,27 @@ public class MenuButtons {
 			musicVolumeSlider.setOpaque(false);
 
 
+			dropDownText.setText("UI Location: ");
+			dropDownText.setFont(new Font("Arial", Font.BOLD, 15));
+			dropDownText.setEditable(false);
+			dropDownText.setOpaque(false);
+			dropDownText.setBounds(5, 145, 120, 60);
+			dropDown.setBounds(150,145,150,30);
+
+			cardDropText.setText("Card Back: ");
+			cardDropText.setFont(new Font("Arial", Font.BOLD, 15));
+			cardDropText.setEditable(false);
+			cardDropText.setOpaque(false);
+			cardDropText.setBounds(5, 195, 120, 60);
+			cardDropDown.setBounds(150,195,150,30);
+
+			backgroundDropText.setText("Background Color: ");
+			backgroundDropText.setFont(new Font("Arial", Font.BOLD, 15));
+			backgroundDropText.setEditable(false);
+			backgroundDropText.setOpaque(false);
+			backgroundDropText.setBounds(5, 245, 150, 60);
+			backgroundDropDown.setBounds(150,245,150,30);
+
 			
 			confirmButton.setBounds(135, 330, 130, 30);
 			confirmButton.addActionListener(new confirmOptionsListener());
@@ -253,6 +284,12 @@ public class MenuButtons {
 			ruleTable.add(volumeText);
 			ruleTable.add(musicVolumeSlider);
 			ruleTable.add(musicVolumeText);
+			ruleTable.add(dropDown);
+			ruleTable.add(dropDownText);
+			ruleTable.add(cardDropDown);
+			ruleTable.add(cardDropText);
+			ruleTable.add(backgroundDropDown);
+			ruleTable.add(backgroundDropText);
 
 			ruleTable.setVisible(true);
 			ruleFrame.setVisible(true);
@@ -266,6 +303,28 @@ public class MenuButtons {
 				
 				FloatControl volumeControl = (FloatControl) StartMenu.music.getControl(FloatControl.Type.MASTER_GAIN);
 				volumeControl.setValue(StartMenu.musicVolume);
+				if(dropDown.getSelectedItem().equals("Top")) {
+					_Direction = Direction.UP;
+				} else if(dropDown.getSelectedItem().equals("Bottom")) {
+					_Direction = Direction.DOWN;
+				}
+
+				if(cardDropDown.getSelectedItem().equals("Ocean")) {
+					GameMode.cardPath = "CardImages\\greywyvern-cardset\\";
+				} else if(cardDropDown.getSelectedItem().equals("Original")) {
+					GameMode.cardPath =  "CardImages\\original\\";
+				}
+				if(currentGameMode != null) {
+					currentGameMode.refreshCards();
+				}
+
+				if(backgroundDropDown.getSelectedItem().equals("Green")) {
+					table.setBackground(new Color(0, 180, 0));
+				} else if(backgroundDropDown.getSelectedItem().equals("White")) {
+					table.setBackground(Color.WHITE);
+				}
+				
+				positionButtons(_Direction);
 				ruleFrame.dispose();
 			}
 		}

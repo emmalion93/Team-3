@@ -27,6 +27,7 @@ public class GameMode {
     public void newGame() { }
     public void saveGame() { }
     public void loadGame() { }
+    public void refreshCards() { }
     public void undo() { }
     public void redo() { }
     public void updateTimer() { }
