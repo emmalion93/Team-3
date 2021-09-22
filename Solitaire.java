@@ -72,14 +72,6 @@ public class Solitaire extends GameMode
 
 	}
 
-
-
-	public Solitaire() {
-		gameName = "Klondike";
-		gameDesc = "Traditional Solitaire";
-	}
-
-
 	// moves a card to abs location within a component
 	protected static Card moveCard(Card c, int x, int y)
 	{
@@ -255,7 +247,6 @@ public class Solitaire extends GameMode
 		stop = e.getPoint();
 		// used for status bar updates
 		boolean validMoveMade = false;
-
 		// SHOW CARD MOVEMENTS
 		if (movedCard != null)
 		{

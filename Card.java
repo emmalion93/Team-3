@@ -214,7 +214,6 @@ class Card extends JPanel
 		Rectangle rect = new Rectangle(whereAmI.x, whereAmI.y, Card.CARD_WIDTH, Card.CARD_HEIGHT);
 		return (rect.contains(p));
 	}
-  
 	private String getImageInfo() {
 		String s = "";// imageFile;
 		switch (_value)

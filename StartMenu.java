@@ -3,7 +3,6 @@ import java.awt.Color;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -114,7 +113,6 @@ public class StartMenu {
 
 		myGameModes.add(new FlowerBed());
 		myGameModes.add(new Solitaire());
-      
 		int count = 0;
 		for (int x = 0; x < myGameModes.size(); x++)
 		{
