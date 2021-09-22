@@ -30,8 +30,6 @@ class FlowerBedFinalStack extends FlowerBedCardStack
 		Rectangle rect = new Rectangle(_x, _y, Card.CARD_WIDTH + 10, Card.CARD_HEIGHT + 10);
 		return (rect.contains(p));
 	}
-
-
 	/*
 	 * We draw this stack one card on top of the other
 	 */

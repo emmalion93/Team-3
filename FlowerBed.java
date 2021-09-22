@@ -31,7 +31,7 @@ public class FlowerBed extends GameMode
 	private static FlowerBedFinalStack[] final_cards;// Foundation Stacks
 	private static FlowerBedCardStack[] playCardStack; // Tableau stacks
 	private static FlowerBedCardStack deck; // populated with standard 52 card deck
-
+  
 	// CARD MOVEMENT
 	private Card prevCard = null;// tracking card for waste stack
 	private Card movedCard = null;// card moved from waste stack
@@ -79,8 +79,6 @@ public class FlowerBed extends GameMode
 				+ "the game begins, but it may be paused by pressing the pause button at the bottom of"
 				+ "the screen. ";
 	}
-
-	
 
 	// add/subtract points based on gameplay actions
 	protected void setScore(int deltaScore)
@@ -187,6 +185,7 @@ public class FlowerBed extends GameMode
 		for (int x = 0; x < NUM_FINAL_DECKS; x++)
 		{
 			List<String> cardList = Arrays.asList(stacks.get(NUM_PLAY_DECKS + x).split(";"));
+
 			for (int y = 0; y < cardList.size(); y++)
 			{
 				List<String> cardInfo = Arrays.asList(cardList.get(y).split(","));
@@ -667,7 +666,7 @@ public class FlowerBed extends GameMode
 
 		// reset time
 		time = 0;
-
+    
 		//scoreBox.setText("Score: 0");
 		//timeBox.setText("Seconds: 0");
 		
@@ -721,6 +720,7 @@ public class FlowerBed extends GameMode
 		frame = myFrame;
 		mainMenu = myMenu;
 		cardPath = myCardPath;
+
 
 
 		frame.setSize(TABLE_WIDTH, TABLE_HEIGHT);

@@ -1,13 +1,11 @@
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-
 import java.awt.event.MouseEvent;
 
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.sound.sampled.FloatControl;
-
 public class GameMode {
     // Game information Variables
 	protected String gameName;
