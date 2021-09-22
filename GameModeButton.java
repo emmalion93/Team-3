@@ -41,8 +41,7 @@ public class GameModeButton {
         gameMode = myGM;
         name = myGM.getName();
         table = myTable;
-		menu = myMenu;
-
+		    menu = myMenu;
         frame = myFrame;
 
         gameButton = new JButton(name);
@@ -72,13 +71,11 @@ public class GameModeButton {
         gameinformationButton.addActionListener(new ShowDescriptionListener());
 		gameinformationButton.setMargin(new Insets(1,1,1,1));
 		gameinformationButton.setFont(new Font("Arial", Font.BOLD, 15));
-
     }
 
     public void setPosition(int my_x_pos, int my_y_pos) {
         x_pos = my_x_pos;
         y_pos = my_y_pos;
-
         gameButton.setBounds(x_pos, y_pos, 120, 60);
 
         highScoreBox.setBounds(x_pos + 21, y_pos + 60, 80, 30);
@@ -100,7 +97,6 @@ public class GameModeButton {
     }
 
     public boolean getFavorite() { return favorite; }
-
     private class ChooseGameListener implements ActionListener
 	{
 		@Override

@@ -87,16 +87,16 @@ class Card extends JPanel
 		/*switch (_suit)
 		{
 		case HEARTS:
-			System.out.println("Hearts");
+			//System.out.println("Hearts");
 			break;
 		case DIAMONDS:
-			System.out.println("Diamonds");
+			//System.out.println("Diamonds");
 			break;
 		case SPADES:
-			System.out.println("Spades");
+			//System.out.println("Spades");
 			break;
 		case CLUBS:
-			System.out.println("Clubs");
+			//System.out.println("Clubs");
 			break;
 		}*/
 		return _suit;
@@ -107,43 +107,43 @@ class Card extends JPanel
 		/*switch (_value)
 		{
 		case ACE:
-			System.out.println(" Ace");
+			//System.out.println(" Ace");
 			break;
 		case TWO:
-			System.out.println(" 2");
+			//System.out.println(" 2");
 			break;
 		case THREE:
-			System.out.println(" 3");
+			//System.out.println(" 3");
 			break;
 		case FOUR:
-			System.out.println(" 4");
+			//System.out.println(" 4");
 			break;
 		case FIVE:
-			System.out.println(" 5");
+			//System.out.println(" 5");
 			break;
 		case SIX:
-			System.out.println(" 6");
+			//System.out.println(" 6");
 			break;
 		case SEVEN:
-			System.out.println(" 7");
+			//System.out.println(" 7");
 			break;
 		case EIGHT:
-			System.out.println(" 8");
+			//System.out.println(" 8");
 			break;
 		case NINE:
-			System.out.println(" 9");
+			//System.out.println(" 9");
 			break;
 		case TEN:
-			System.out.println(" 10");
+			//System.out.println(" 10");
 			break;
 		case JACK:
-			System.out.println(" Jack");
+			//System.out.println(" Jack");
 			break;
 		case QUEEN:
-			System.out.println(" Queen");
+			//System.out.println(" Queen");
 			break;
 		case KING:
-			System.out.println(" King");
+			//System.out.println(" King");
 			break;
 		}*/
 		return _value;
@@ -214,7 +214,6 @@ class Card extends JPanel
 		Rectangle rect = new Rectangle(whereAmI.x, whereAmI.y, Card.CARD_WIDTH, Card.CARD_HEIGHT);
 		return (rect.contains(p));
 	}
-
 	private String getImageInfo() {
 		String s = "";// imageFile;
 		switch (_value)

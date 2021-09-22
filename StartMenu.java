@@ -3,14 +3,11 @@ import java.awt.Color;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-
-
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import java.util.List;
 import java.util.ArrayList;
-
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
@@ -38,14 +35,12 @@ public class StartMenu {
 
 	private List<GameMode> myGameModes = new ArrayList<GameMode>();
 	private List<GameModeButton> gameModeButtons = new ArrayList<GameModeButton>();
-
 	public static Clip music;
 	public static int volumeMax = 6;
 	public static int volumeMin = -54;
 	public static int volumeStart = -40;
 	public static int volume = -40;
 	public static int musicVolume = -40;
-
 	private class ShowFavoritesListener implements ActionListener
 	{
 		@Override
@@ -114,12 +109,10 @@ public class StartMenu {
     private void playMainMenu()
 	{
 		startMusic();
-
 		table.removeAll();
 
 		myGameModes.add(new FlowerBed());
 		myGameModes.add(new Solitaire());
-
 		int count = 0;
 		for (int x = 0; x < myGameModes.size(); x++)
 		{
@@ -242,7 +235,6 @@ public class StartMenu {
 
 	public static void execute() {
 		Container contentPane;
-
 		frame.setSize(FlowerBed.TABLE_WIDTH, FlowerBed.TABLE_HEIGHT);
 
 		table.setLayout(null);
@@ -256,8 +248,6 @@ public class StartMenu {
 		menuButtons.generateButtons();
 		menuButtons.disableMainMenuButtons();
         menu.playMainMenu();
-		
-		
 
 		frame.setVisible(true);
 	}

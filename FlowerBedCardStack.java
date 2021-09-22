@@ -122,7 +122,7 @@ class FlowerBedCardStack extends JComponent
 		return v.size();
 	}
 
-	public Vector<Card> getStack() 
+	public Vector<Card> getStack()
     {
         return v;
     }
@@ -181,7 +181,6 @@ class FlowerBedCardStack extends JComponent
 		// System.out.println("CardStack GET _x: " + _x + " _y: " + _y);
 		return new Point(_x, _y);
 	}
-
 	// moves a card to abs location within a component
 	protected Card moveCard(Card c, int x, int y)
 	{
@@ -189,7 +188,6 @@ class FlowerBedCardStack extends JComponent
         c.setXY(new Point(x, y));
 		return c;
 	}
-
 	@Override
 	protected void paintComponent(Graphics g)
 	{
