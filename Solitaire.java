@@ -73,6 +73,13 @@ public class Solitaire extends GameMode
 	}
 
 
+
+	public Solitaire() {
+		gameName = "Klondike";
+		gameDesc = "Traditional Solitaire";
+	}
+
+
 	// moves a card to abs location within a component
 	protected static Card moveCard(Card c, int x, int y)
 	{
@@ -615,7 +622,6 @@ public class Solitaire extends GameMode
 		// reset time
 		time = 0;
 		score = 0;
-
 		table.repaint();
 	}
 
