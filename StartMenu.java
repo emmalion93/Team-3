@@ -98,8 +98,9 @@ public class StartMenu {
 	}
 
 	private void startMusic() {
+		// TODO music starts in loud 
 		try {
-			AudioInputStream audioStream = AudioSystem.getAudioInputStream(this.getClass().getResource("Sounds\\Loop_The_Old_Tower_Inn.wav"));
+			AudioInputStream audioStream = AudioSystem.getAudioInputStream(this.getClass().getResource("Sounds/Loop_The_Old_Tower_Inn.wav"));
 			music = AudioSystem.getClip();
 			music.open(audioStream);
 			music.loop(Clip.LOOP_CONTINUOUSLY);

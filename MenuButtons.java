@@ -310,9 +310,9 @@ public class MenuButtons {
 				}
 
 				if(cardDropDown.getSelectedItem().equals("Ocean")) {
-					GameMode.cardPath = "CardImages\\greywyvern-cardset\\";
+					GameMode.cardPath = "CardImages/greywyvern-cardset/";
 				} else if(cardDropDown.getSelectedItem().equals("Original")) {
-					GameMode.cardPath =  "CardImages\\original\\";
+					GameMode.cardPath =  "CardImages/original/";
 				}
 				if(currentGameMode != null) {
 					currentGameMode.refreshCards();
