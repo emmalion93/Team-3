@@ -6,7 +6,7 @@ import java.awt.Rectangle;
 import java.awt.geom.RoundRectangle2D;
 
 /*
- * Adapts the CardStack to be used as the final
+ * Adapts the FlowerBedCardStack to be used as the final
  * (foundation) stack
  */
 class FlowerBedFinalStack extends FlowerBedCardStack
@@ -30,7 +30,6 @@ class FlowerBedFinalStack extends FlowerBedCardStack
 		Rectangle rect = new Rectangle(_x, _y, Card.CARD_WIDTH + 10, Card.CARD_HEIGHT + 10);
 		return (rect.contains(p));
 	}
-
 	/*
 	 * We draw this stack one card on top of the other
 	 */
@@ -40,7 +39,7 @@ class FlowerBedFinalStack extends FlowerBedCardStack
 		removeAll();
 		if (!empty())
 		{
-			add(FlowerBed.moveCard(this.getLast(), 1, 1));
+			add(moveCard(this.getLast(), 1, 1));
 		} else
 		{
 			// draw back of card if empty

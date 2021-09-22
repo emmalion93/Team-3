@@ -21,7 +21,6 @@ class CardStack extends JComponent
 
 	public CardStack(boolean isDeck)
 	{
-		int f = 1;
 		this.setLayout(null);
 		v = new Vector<Card>();
 		if (isDeck)
