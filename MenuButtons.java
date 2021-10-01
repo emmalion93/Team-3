@@ -47,6 +47,9 @@ public class MenuButtons {
 	private  JTextField scoreBox = new JTextField();// displays the score
 	private  JTextField timeBox = new JTextField();// displays the time
 	private  JTextField statusBox = new JTextField();// status messages
+	private JButton redoButton = new JButton("Redo");
+	private JButton undoButton = new JButton("Undo");
+
 
 	private ScoreClock scoreClock;
 	private boolean timeRunning = false;
@@ -108,10 +111,10 @@ public class MenuButtons {
 		{
             if (!timeRunning)
 			{
-				toggleTimerButton.setText("Start Timer");
+				toggleTimerButton.setText("Pause Timer");
 			} else
 			{
-				toggleTimerButton.setText("Pause Timer");
+				toggleTimerButton.setText("Start Timer");
 			}
 			toggleTimer();
 		}
@@ -137,6 +140,7 @@ public class MenuButtons {
 		scoreClock = new ScoreClock();
 		
 		// set the timer to update every second
+		timeRunning = true;
 		Timer timer = new Timer();
 		timer.scheduleAtFixedRate(scoreClock, 1000, 1000);
 	}
@@ -158,6 +162,7 @@ public class MenuButtons {
 		scoreClock.cancel();
 		String text = "Seconds: 0";
 		String newScore = "Score: 0";
+		toggleTimerButton.setText("Pause Timer");
 		scoreBox.setText(newScore);
 		scoreBox.repaint();
 		timeBox.setText(text);
@@ -344,6 +349,24 @@ public class MenuButtons {
 		}
 	}
 
+	private class RedoListener implements ActionListener
+	{
+		@Override
+		public void actionPerformed(ActionEvent e)
+		{
+			currentGameMode.redo();
+		}
+	}
+
+	private class UndoListener implements ActionListener
+	{
+		@Override
+		public void actionPerformed(ActionEvent e)
+		{
+			currentGameMode.undo();
+		}
+	}
+
 	private class CardMovementManager extends MouseAdapter {
 		@Override
 		public void mousePressed(MouseEvent e)
@@ -379,6 +402,10 @@ public class MenuButtons {
 		saveButton.addActionListener(new SaveGameListener());
 
 		loadButton.addActionListener(new LoadGameListener());
+
+		redoButton.addActionListener(new RedoListener());
+
+		undoButton.addActionListener(new UndoListener());
 
 		//mainMenuButton.setBounds(0, TABLE_HEIGHT - 70, 120, 30);
 
@@ -441,6 +468,8 @@ public class MenuButtons {
                 saveButton.setBounds(905, 0, 125, 30);
                 loadButton.setBounds(1030, 0, 125, 30);
                 optionsButton.setBounds(1155, 0, 130, 30);
+				undoButton.setBounds(1030, FlowerBed.TABLE_HEIGHT - 100, 130, 30);
+				redoButton.setBounds(1155, FlowerBed.TABLE_HEIGHT - 100, 130, 30);
                 break;
             case DOWN:
                 mainMenuButton.setBounds(0, FlowerBed.TABLE_HEIGHT - 70, 120, 30);
@@ -454,7 +483,8 @@ public class MenuButtons {
                 saveButton.setBounds(905, FlowerBed.TABLE_HEIGHT - 70, 125, 30);
                 loadButton.setBounds(1030, FlowerBed.TABLE_HEIGHT - 70, 125, 30);
                 optionsButton.setBounds(1155, FlowerBed.TABLE_HEIGHT - 70, 130, 30);
-
+				undoButton.setBounds(1030, FlowerBed.TABLE_HEIGHT - 100, 130, 30);
+				redoButton.setBounds(1155, FlowerBed.TABLE_HEIGHT - 100, 130, 30);
                 break;
 		}
     }
@@ -471,6 +501,8 @@ public class MenuButtons {
 		table.add(newGameButton);
 		table.add(showRulesButton);
 		table.add(scoreBox);
+		table.add(undoButton);
+		table.add(redoButton);
 		table.repaint();
 	}
 
@@ -484,6 +516,8 @@ public class MenuButtons {
 		newGameButton.setEnabled(false);
 		showRulesButton.setEnabled(false);
 		scoreBox.setEnabled(false);
+		undoButton.setEnabled(false);
+		redoButton.setEnabled(false);
 	}
 
 	public void enableAllButtons() {
@@ -497,5 +531,7 @@ public class MenuButtons {
 		newGameButton.setEnabled(true);
 		showRulesButton.setEnabled(true);
 		scoreBox.setEnabled(true);
+		undoButton.setEnabled(true);
+		redoButton.setEnabled(true);
 	}
 }

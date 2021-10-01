@@ -42,6 +42,7 @@ public class StartMenu {
 	public static int volumeStart = -40;
 	public static int volume = -40;
 	public static int musicVolume = -40;
+
 	private class ShowFavoritesListener implements ActionListener
 	{
 		@Override
@@ -113,8 +114,8 @@ public class StartMenu {
 		startMusic();
 		table.removeAll();
 
-		myGameModes.add(new FlowerBed());
-		myGameModes.add(new Solitaire());
+		myGameModes.add(new FlowerBed(table ,frame, this, GameMode.cardPath, GameMode.backgroundPath));
+		myGameModes.add(new Solitaire(table ,frame, this, GameMode.cardPath, GameMode.backgroundPath));
       
 		int count = 0;
 		for (int x = 0; x < myGameModes.size(); x++)
@@ -233,7 +234,7 @@ public class StartMenu {
 		menuButtons.enableAllButtons();
 		menuButtons.setGameMode(gameMode);
 		menuButtons.startTimer();
-		gameMode.execute(table ,frame, this, GameMode.cardPath);
+		gameMode.execute();
 	}
 
 	public static void execute() {

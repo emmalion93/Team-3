@@ -2,6 +2,7 @@
 import java.awt.Container;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
@@ -17,14 +18,12 @@ public class FlowerBed extends GameMode
 	public static final int TABLE_WIDTH = (Card.CARD_WIDTH * 12) + 100;
 	public static final int NUM_FINAL_DECKS = 4;
 	public static final int NUM_PLAY_DECKS = 7;
-	public static final Point DECK_POS = new Point(5, 500);
+	public static final Point DECK_POS = new Point(5, 525);
 	public static final Point SHOW_POS = new Point(DECK_POS.x + Card.CARD_WIDTH + 5, 5);
 	public static final Point FINAL_POS = new Point(SHOW_POS.x + Card.CARD_WIDTH + 650, 35);
     public static final Point PLAY_POS = new Point(5, 35);
 
-	// GUI COMPONENTS (top level)
-	private JFrame frame;
-	protected JPanel table;
+	
 	// other components
 
 	// GAMEPLAY STRUCTURES
@@ -42,13 +41,15 @@ public class FlowerBed extends GameMode
 	private Point start = null;// where mouse was clicked
 	private Point stop = null;// where mouse was released
 	private Card card = null; // card to be moved
+	private List<CardHistory> undoStack = new ArrayList<CardHistory>();
+	private List<CardHistory> redoStack = new ArrayList<CardHistory>();
 	// used for moving single cards
 	private FlowerBedCardStack source = null;
 	private FlowerBedCardStack dest = null;
 	// used for moving a stack of cards
 	private FlowerBedCardStack transferStack = new FlowerBedCardStack(false);
 
-	public FlowerBed() {
+	public FlowerBed(JPanel myTable, JFrame myFrame, StartMenu myMenu, String myCardPath, String myBackgroundPath) {
 		gameName = "Flower Bed";
 		gameDesc = "Move cards one at a time onto stacks regardless of suit/color to fill foundations.";
 	
@@ -78,13 +79,18 @@ public class FlowerBed extends GameMode
 				+ "<p> The timer starts running as soon as "
 				+ "the game begins, but it may be paused by pressing the pause button at the bottom of"
 				+ "the screen. ";
+
+		table = myTable;
+		frame = myFrame;
+		mainMenu = myMenu;
+		cardPath = myCardPath;
+		backgroundPath = myBackgroundPath;
 	}
 
 	// add/subtract points based on gameplay actions
 	protected void setScore(int deltaScore)
 	{
 		score += deltaScore;
-		//String newScore = "Score: " + score;
 	}
 
 	// GAME TIMER UTILITIES
@@ -203,8 +209,103 @@ public class FlowerBed extends GameMode
 		}
 		deck.reverse();
 
+		undoStack.clear();
+		redoStack.clear();
 		score = Integer.parseInt(stacks.get(NUM_PLAY_DECKS + NUM_FINAL_DECKS + 1));
 		time = Integer.parseInt(stacks.get(NUM_PLAY_DECKS + NUM_FINAL_DECKS + 2));
+	}
+
+	public void redo() {
+		if(redoStack.size() > 0) {
+			source =  redoStack.get(redoStack.size() - 1).getLastCardStack();
+			card = redoStack.get(redoStack.size() - 1).getCard();
+			dest = redoStack.get(redoStack.size() - 1).getCardStack();
+			undoStack.add(redoStack.get(redoStack.size() - 1));
+			redoStack.remove(redoStack.size() - 1);
+
+			Card c = card;
+			source.removeCard(card);
+
+
+			c.repaint();
+			// if playstack, turn next card up
+			if (source.getFirst() != null)
+			{
+				Card temp = source.getFirst().setFaceup();
+				temp.repaint();
+				source.repaint();
+			}
+
+			boolean isFinalDeck = false;
+			for (int x = 0; x < NUM_FINAL_DECKS; x++)
+			{
+				FlowerBedFinalStack finalDeck = final_cards[x];
+				if(dest == finalDeck) {
+					dest.push(c);
+					isFinalDeck = true;
+					break;
+				}
+			}
+
+			if(!isFinalDeck) {
+				dest.setXY(dest.getXY().x, dest.getXY().y);
+				dest.putFirst(c);
+			}
+
+
+			source.repaint();
+			
+			table.repaint();
+
+			start = null;
+			stop = null;
+			source = null;
+			dest = null;
+			card = null;
+			sourceIsFinalDeck = false;
+			checkForWin = false;
+			gameOver = false;
+		}
+	}
+
+	public void undo() {
+		if(undoStack.size() > 0) {
+
+			source =  undoStack.get(undoStack.size() - 1).getCardStack();
+			card = undoStack.get(undoStack.size() - 1).getCard();
+			dest = undoStack.get(undoStack.size() - 1).getLastCardStack();
+			redoStack.add( undoStack.get(undoStack.size() - 1));
+			undoStack.remove(undoStack.size() - 1);
+
+			Card c = card;
+			source.removeCard(card);
+
+
+			c.repaint();
+			// if playstack, turn next card up
+			if (source.getFirst() != null)
+			{
+				Card temp = source.getFirst().setFaceup();
+				temp.repaint();
+				source.repaint();
+			}
+
+			dest.setXY(dest.getXY().x, dest.getXY().y);
+			dest.putFirst(c);
+
+			source.repaint();
+			
+			table.repaint();
+
+			start = null;
+			stop = null;
+			source = null;
+			dest = null;
+			card = null;
+			sourceIsFinalDeck = false;
+			checkForWin = false;
+			gameOver = false;
+		}
 	}
 
 	private boolean validPlayStackMove(Card source, Card dest)
@@ -324,7 +425,6 @@ public class FlowerBed extends GameMode
 		stop = e.getPoint();
 		// used for status bar updates
 		boolean validMoveMade = false;
-
 		// SHOW CARD MOVEMENTS
 		if (movedCard != null)
 		{
@@ -340,6 +440,10 @@ public class FlowerBed extends GameMode
 					movedCard.setXY(dest.getXY());
 					table.remove(prevCard);
 					dest.putFirst(movedCard);
+
+					undoStack.add(new CardHistory(movedCard, dest, source));
+					redoStack.clear();
+
 					table.repaint();
 					movedCard = null;
 					putBackOnDeck = false;
@@ -379,6 +483,10 @@ public class FlowerBed extends GameMode
 					{
 						dest.push(movedCard);
 						table.remove(prevCard);
+
+						undoStack.add(new CardHistory(movedCard, dest, source));
+						redoStack.clear();
+
 						dest.repaint();
 						table.repaint();
 						movedCard = null;
@@ -394,6 +502,10 @@ public class FlowerBed extends GameMode
 					System.out.println("Destin" + dest.showSize());
 					dest.push(movedCard);
 					table.remove(prevCard);
+
+					undoStack.add(new CardHistory(movedCard, dest, source));
+					redoStack.clear();
+
 					dest.repaint();
 					table.repaint();
 					movedCard = null;
@@ -434,6 +546,9 @@ public class FlowerBed extends GameMode
 					dest.putFirst(c);
 
 					dest.repaint();
+					
+					undoStack.add(new CardHistory(c, dest, source));
+					redoStack.clear();
 
 					table.repaint();
 
@@ -451,7 +566,6 @@ public class FlowerBed extends GameMode
 					Card c = card;
 					source.removeCard(card);
 
-
 					c.repaint();
 					// if playstack, turn next card up
 					if (source.getFirst() != null)
@@ -465,6 +579,9 @@ public class FlowerBed extends GameMode
 					dest.putFirst(c);
 
 					dest.repaint();
+
+					undoStack.add(new CardHistory(c, dest, source));
+					redoStack.clear();
 
 					table.repaint();
 
@@ -503,6 +620,9 @@ public class FlowerBed extends GameMode
 
 							dest.repaint();
 
+							undoStack.add(new CardHistory(c, dest, source));
+							redoStack.clear();
+
 							table.repaint();
 
 							System.out.print("Destination ");
@@ -531,6 +651,9 @@ public class FlowerBed extends GameMode
 
 						dest.repaint();
 
+						undoStack.add(new CardHistory(c, dest, source));
+						redoStack.clear();
+
 						table.repaint();
 
 						System.out.print("Destination ");
@@ -552,7 +675,7 @@ public class FlowerBed extends GameMode
 		{
 			//statusBox.setText("That Is Not A Valid Move");
 		} else if(validMoveMade) {
-			playSound();
+			playSound("Sounds/mixkit-poker-card-flick-2002.wav");
 		}
 		// CHECKING FOR WIN
 		if (checkForWin)
@@ -571,6 +694,8 @@ public class FlowerBed extends GameMode
 			}
 			if (!gameNotOver) {
 				gameOver = true;
+			} else {
+				gameOver = false;
 			}
 		}
 
@@ -600,6 +725,8 @@ public class FlowerBed extends GameMode
 	{
 		score = 0;
 		time = 0;
+		undoStack.clear();
+		redoStack.clear();
 		deck = new FlowerBedCardStack(true); // deal 52 cards
 		deck.shuffle();
 		//table.removeAll();
@@ -667,20 +794,6 @@ public class FlowerBed extends GameMode
 		// reset time
 		time = 0;
     
-		//scoreBox.setText("Score: 0");
-		//timeBox.setText("Seconds: 0");
-		
-		/*table.add(statusBox);
-		table.add(toggleTimerButton);
-		table.add(saveButton);
-		table.add(loadButton);
-		table.add(optionsButton);
-		table.add(gameTitle);
-		table.add(timeBox);
-		table.add(mainMenuButton);
-		table.add(newGameButton);
-		table.add(showRulesButton);
-		table.add(scoreBox);*/
 		table.repaint();
 	}
 
@@ -714,31 +827,9 @@ public class FlowerBed extends GameMode
 		deck.repaint();
 	}
 
-	public void execute(JPanel myTable, JFrame myFrame, StartMenu myMenu, String myCardPath) {
-		Container contentPane;
-		table = myTable;
-		frame = myFrame;
-		mainMenu = myMenu;
-		cardPath = myCardPath;
-
-
-
+	public void execute() {
 		frame.setSize(TABLE_WIDTH, TABLE_HEIGHT);
-
-		table.setLayout(null);
-
-		contentPane = frame.getContentPane();
-		contentPane.add(table);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         
         playNewGame();
-		//addButtons();
-		//startTimer();
-
-
-		/*table.addMouseListener(new CardMovementManager());
-		table.addMouseMotionListener(new CardMovementManager());*/
-
-		frame.setVisible(true);
 	}
 }

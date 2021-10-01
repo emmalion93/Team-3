@@ -9,6 +9,8 @@ import java.awt.Rectangle;
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
+import java.awt.Graphics2D;
+
 class Card extends JPanel
 {
 	public static enum Value

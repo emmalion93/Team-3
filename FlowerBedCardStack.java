@@ -3,6 +3,7 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.util.ListIterator;
 import java.util.Vector;
 
 import javax.swing.JComponent;
@@ -19,6 +20,7 @@ class FlowerBedCardStack extends JComponent
 	protected int SPREAD = 18;
 	protected int _x = 0;
 	protected int _y = 0;
+	protected Rectangle testR;
 
 	public FlowerBedCardStack(boolean isDeck)
 	{
@@ -161,7 +163,8 @@ class FlowerBedCardStack extends JComponent
 	public boolean contains(Point p)
 	{
         if(playStack) {
-            Rectangle rect = new Rectangle(_x, _y, Card.CARD_WIDTH + 10, Card.CARD_HEIGHT * 2);
+            //Rectangle rect = new Rectangle(_x, _y, Card.CARD_WIDTH + 10, Card.CARD_HEIGHT * 2);
+			Rectangle rect = new Rectangle(_x, _y, Card.CARD_WIDTH + 10, (int)(Card.CARD_HEIGHT * 3.2));
             return (rect.contains(p));
         } else {
             Rectangle rect = new Rectangle(_x, _y, Card.CARD_WIDTH * 16, Card.CARD_HEIGHT);
@@ -174,7 +177,8 @@ class FlowerBedCardStack extends JComponent
 		_x = x;
 		_y = y;
 		// System.out.println("CardStack SET _x: " + _x + " _y: " + _y);
-        setBounds(_x, _y, Card.CARD_WIDTH + 1000, Card.CARD_HEIGHT * 3);
+        //setBounds(_x, _y, Card.CARD_WIDTH + 1000, Card.CARD_HEIGHT * 3);
+		setBounds(_x, _y, Card.CARD_WIDTH + 1000, Card.CARD_HEIGHT * 4);
 	}
 
 	public Point getXY()
@@ -186,8 +190,9 @@ class FlowerBedCardStack extends JComponent
 	// moves a card to abs location within a component
 	protected Card moveCard(Card c, int x, int y)
 	{
-		c.setBounds(new Rectangle(new Point(x, y), new Dimension(Card.CARD_WIDTH + 10, Card.CARD_HEIGHT + 10)));
-        c.setXY(new Point(x, y));
+		//c.setBounds(new Rectangle(new Point(x, y), new Dimension(Card.CARD_WIDTH + 10, Card.CARD_HEIGHT + 10)));
+        c.setBounds(new Rectangle(new Point(x, y), new Dimension(Card.CARD_WIDTH, Card.CARD_HEIGHT)));
+		c.setXY(new Point(x, y));
 		return c;
 	}
   
@@ -195,6 +200,7 @@ class FlowerBedCardStack extends JComponent
 	protected void paintComponent(Graphics g)
 	{
 		super.paintComponent(g);
+		//TODO all my problems are here
 		if (playStack)
 		{
 			removeAll();
